@@ -6,11 +6,13 @@ use App\Repository\UtilisateurRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use Symfony\Component\Security\Core\User\UserInterface;
 
- 
+
+
 #[ApiResource]
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
-class Utilisateur 
+class Utilisateur implements UserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -56,7 +58,18 @@ class Utilisateur
     #[ORM\Column(nullable: true)]
     private ?string $date_de_naissance = null;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Image::class, mappedBy="utilisateur", cascade={"persist", "remove"})
+     */
+    private $images;
 
+
+    public function getImages()
+    {
+        return $this->images;
+    }
+
+ 
     public function getId(): ?int
     {
         return $this->id;
@@ -220,6 +233,16 @@ class Utilisateur
         $this->date_de_naissance = $date_de_naissance;
 
         return $this;
-    }   
-    
+    }
+
+    public function eraseCredentials()
+    {
+        // Si vous n'avez rien à nettoyer, vous pouvez laisser cette méthode vide.
+    }
+
+    public function getUserIdentifier(): string
+    {
+        // Cette méthode doit retourner une chaîne unique identifiant l'utilisateur.
+        return $this->email; // Utilisez l'email comme identifiant, par exemple.
+    }
 }

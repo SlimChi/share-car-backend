@@ -23,7 +23,7 @@ class ProfilController extends AbstractController
          $this->utilisateur=$utilisateur;
     }
 
-    #[Route('/profil', name: 'app_profil', methods: ['POST', 'GET', 'PUT'])]
+    #[Route('/api/profil', name: 'app_profil', methods: ['POST', 'GET', 'PUT'])]
     public function profil(Request $request, UtilisateurRepository $utilisateurRepository): Response
     {
        

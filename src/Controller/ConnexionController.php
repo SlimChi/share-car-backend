@@ -7,15 +7,19 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
-
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
 class ConnexionController extends AbstractController
 {
+    private $jwtManager;
+
+    public function __construct(JWTTokenManagerInterface $jwtManager)
+    {
+        $this->jwtManager = $jwtManager;
+    }
+
     #[Route('/connexion', name: 'app_connexion', methods: ['POST'])]
-
-
-    public function connexion(Request $request, UtilisateurRepository $utilisateurRepository) : Response
+    public function connexion(Request $request, UtilisateurRepository $utilisateurRepository): Response
     {
         $data = json_decode($request->getContent(), true);
 
@@ -28,17 +32,16 @@ class ConnexionController extends AbstractController
             return $this->json(['message' => 'Email ou mot de passe invalide'], 403);
         }
 
-        $userData = [
+        // Ici, nous devons créer un tableau associatif pour les données du payload.
+        $payload = [
             'id' => $utilisateur->getId(),
-         
-            // 'email' => $utilisateur->getEmail(),
-            // 'roles' => $utilisateur->getRoles(),
-            
+            'email' => $utilisateur->getEmail(),
+            'roles' => $utilisateur->getRoles(),
         ];
 
-        return $this->json($userData);
+        // Créez le jeton JWT avec les données du payload.
+        $token = $this->jwtManager->create($utilisateur, $payload);
 
-        
-        
+        return $this->json(['token' => $token]);
     }
 }
