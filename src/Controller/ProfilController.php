@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Entity\Utilisateur;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ProfilController extends AbstractController
 {
@@ -19,17 +20,17 @@ class ProfilController extends AbstractController
     public function __construct(EntityManagerInterface $manager, UtilisateurRepository $utilisateur)
     {
          $this->manager=$manager;
-
          $this->utilisateur=$utilisateur;
     }
+
     #[Route('/profil', name: 'app_profil', methods: ['POST', 'GET', 'PUT'])]
     public function profil(Request $request, UtilisateurRepository $utilisateurRepository): Response
     {
+       
        $data=json_decode($request->getContent(),true);
        
        $id=$data['id'];
        $pseudo=$data['pseudo'];
-       $avatar=$data['avatar'];
        $adresse=$data['adresse'];
        $code_postal=$data['code_postal'];
        $ville=$data['ville'];
@@ -40,7 +41,27 @@ class ProfilController extends AbstractController
        if($utilisateur)
        {
          $utilisateur->setPseudo($pseudo);
-         $utilisateur->setAvatar($avatar);
+        
+         $uploadedFile = $request->files->get('avatar');
+
+         if (!$uploadedFile instanceof UploadedFile) {
+             return new JsonResponse
+             (
+                 [
+                   'status'=>false,
+                   'message'=>'Fichier non valide'
+
+                 ]
+             )
+             ;
+         }
+        
+
+         $fileName = bin2hex(random_bytes(10)).'.'.$uploadedFile->guessExtension();
+         $uploadedFile->move("../public/datas",
+         $fileName);
+         $utilisateur->setAvatar($fileName);
+         
          $utilisateur->setAdresse($adresse);
          $utilisateur->setCodePostal($code_postal);
          $utilisateur->setVille($ville);
@@ -54,10 +75,8 @@ class ProfilController extends AbstractController
        (
            [
              'status'=>true,
-             'message'=>'Modification effectue avec succes'
+             'message'=>'Modification effectuée avec succés'
            ]
            );
-
-
     }
 }

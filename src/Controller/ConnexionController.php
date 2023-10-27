@@ -7,8 +7,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-// use Symfony\Component\Security\Core\Security;
+
+
 
 class ConnexionController extends AbstractController
 {
@@ -30,11 +30,15 @@ class ConnexionController extends AbstractController
 
         $userData = [
             'id' => $utilisateur->getId(),
-            'email' => $utilisateur->getEmail(),
-            'roles' => $utilisateur->getRoles(),
+         
+            // 'email' => $utilisateur->getEmail(),
+            // 'roles' => $utilisateur->getRoles(),
             
         ];
 
         return $this->json($userData);
+
+        
+        
     }
 }
