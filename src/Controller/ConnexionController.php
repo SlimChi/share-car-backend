@@ -18,7 +18,7 @@ class ConnexionController extends AbstractController
         $this->jwtManager = $jwtManager;
     }
 
-    #[Route('/connexion', name: 'app_connexion', methods: ['POST'])]
+    #[Route('/api/connexion', name: 'app_connexion', methods: ['POST'])]
     public function connexion(Request $request, UtilisateurRepository $utilisateurRepository): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -27,8 +27,8 @@ class ConnexionController extends AbstractController
         $mot_de_passe = $data['mot_de_passe'];
 
         $utilisateur = $utilisateurRepository->findOneByEmail($email);
-
-        if (!$utilisateur || !password_verify($mot_de_passe, $utilisateur->getMotDePasse())) {
+        
+        if (!$utilisateur || !password_verify($mot_de_passe, $utilisateur->getPassword())) {
             return $this->json(['message' => 'Email ou mot de passe invalide'], 403);
         }
 
@@ -44,4 +44,6 @@ class ConnexionController extends AbstractController
 
         return $this->json(['token' => $token]);
     }
+
+   
 }

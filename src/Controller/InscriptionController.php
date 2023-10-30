@@ -19,7 +19,6 @@ class InscriptionController extends AbstractController
     private $manager;
     private $utilisateur;
    
-
     public function __construct(EntityManagerInterface $manager, UtilisateurRepository $utilisateur)
     {
          $this->manager=$manager;
