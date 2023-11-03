@@ -8,7 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 
 #[ApiResource]
@@ -36,9 +37,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeInterface $date_inscription = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $avatar = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
     private ?string $pseudo = null;
 
     #[ORM\Column]
@@ -59,18 +57,21 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?string $date_de_naissance = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Image::class, mappedBy="utilisateur", cascade={"persist", "remove"})
-     */
-    private $images;
+    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: "utilisateur")]
+    private Collection $images;
 
+  
 
-    public function getImages()
+    public function __construct()
+    {
+        $this->images = new ArrayCollection();
+    }
+
+    public function getImages(): Collection
     {
         return $this->images;
     }
 
- 
     public function getId(): ?int
     {
         return $this->id;
@@ -136,17 +137,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getAvatar(): ?string
-    {
-        return $this->avatar;
-    }
-
-    public function setAvatar(?string $avatar): static
-    {
-        $this->avatar = $avatar;
-
-        return $this;
-    }
 
     public function getPseudo(): ?string
     {

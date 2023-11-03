@@ -18,7 +18,7 @@ class ConnexionController extends AbstractController
         $this->jwtManager = $jwtManager;
     }
 
-    #[Route('/api/connexion', name: 'app_connexion', methods: ['POST'])]
+    #[Route('/connexion', name: 'app_connexion', methods: ['POST'])]
     public function connexion(Request $request, UtilisateurRepository $utilisateurRepository): Response
     {
         $data = json_decode($request->getContent(), true);

@@ -1,53 +1,50 @@
 security:
+    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
-        # Our user class and the algorithm we'll use to encode passwords
-        # 'auto' means to let Symfony choose the best possible password hasher (Argon2 or Bcrypt)
-        # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
-
+    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        # https://symfony.com/doc/current/security/user_provider.html
-        # In this example, users are stored via Doctrine in the database
-        # To see the users at src/App/DataFixtures/ORM/LoadFixtures.php
-        # To load users from somewhere else: https://symfony.com/doc/current/security/user_provider.html#creating-a-custom-user-provider
-        database_users:
-            entity: { class: App\Entity\Utilisateur, property: email }
-
-    # https://symfony.com/doc/current/security.html#a-authentication-firewalls
+        app_user_provider:
+            entity:
+                class: App\Entity\Utilisateur
+                property: email
     firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: true
-
-        main:
-            # this firewall does not have a 'pattern' option because it applies to all URLs
-            lazy: true
-            provider: database_users
-        
+        login:
+            pattern: ^/api/login
             stateless: true
-            
             json_login:
-                check_path: auth # The name in routes.yaml is enough for mapping
-                username_path: email
-                password_path: password
+                check_path: /api/login_check
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        api:
+            pattern: ^/api
+            stateless: true
             jwt: ~
+            logout:
+                path: api_token_invalidate
+            #        api_token_refresh:
+            #            pattern: ^/api/token/refresh
+            #            stateless: true
+            #            user_checker: user_checker_service_id
+            #            refresh_jwt: ~
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#the-firewall
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/api, roles: PUBLIC_ACCESS }
-        - { path: ^/api/auth, roles: PUBLIC_ACCESS }
-        - { path: ^/api/, roles: ROLE_USER }    
+        #- { path: ^/api/login, roles: PUBLIC_ACCESS }
+        #- { path: ^/api/(login|token/refresh), roles: PUBLIC_ACCESS }
+        #        - { path: ^/api/,       roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/,       roles: PUBLIC_ACCESS }
+        - { path: ^/api,       roles: PUBLIC_ACCESS}
 
-    # # The ROLE_ADMIN role inherits from the ROLE_USER role
-    # role_hierarchy:
-    #     ROLE_ADMIN: ROLE_USER
 
 when@test:
-    # this configuration simplifies testing URLs protected by the security mechanism
-    # See https://symfony.com/doc/current/testing/http_authentication.html
     security:
         password_hashers:
             # By default, password hashers are resource intensive and take time. This is
@@ -63,3 +60,9 @@ when@test:
         firewalls:
             main:
                 http_basic: ~
+
+
+lexik_jwt_authentication:
+    secret_key: '%env(resolve:JWT_SECRET_KEY)%'
+    public_key: '%env(resolve:JWT_PUBLIC_KEY)%'
+    pass_phrase: '%env(JWT_PASSPHRASE)%'

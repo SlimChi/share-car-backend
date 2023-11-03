@@ -1,53 +1,48 @@
 <?php
 
 namespace App\Entity;
-
-use App\Repository\ImageRepository;
-use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
- 
+use Doctrine\ORM\Mapping as ORM;
+
 #[ApiResource]
-#[ORM\Entity(repositoryClass: ImageRepository::class)]
+#[ORM\Entity]
 class Image
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: "integer")]
+    private $id;
 
-    #[ORM\Column(length: 255)]
-    private ?string $image = null;
+    #[ORM\Column(type: "string")]
+    private $url;
 
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Voiture $voiture = null;
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy: "images")]
+    private ?Utilisateur $utilisateur = null;
+
+    public function getUtilisateur(): ?Utilisateur
+    {
+        return $this->utilisateur;
+    }
+
+    public function setUtilisateur(?Utilisateur $utilisateur): self
+    {
+        $this->utilisateur = $utilisateur;
+        return $this;
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getImage(): ?string
+    public function getUrl(): ?string
     {
-        return $this->image;
+        return $this->url;
     }
 
-    public function setImage(string $image): static
+    public function setUrl(string $url): self
     {
-        $this->image = $image;
-
-        return $this;
-    }
-
-    public function getVoiture(): ?Voiture
-    {
-        return $this->voiture;
-    }
-
-    public function setVoiture(?Voiture $voiture): static
-    {
-        $this->voiture = $voiture;
-
+        $this->url = $url;
         return $this;
     }
 }
