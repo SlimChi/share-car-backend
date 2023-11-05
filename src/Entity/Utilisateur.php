@@ -60,8 +60,28 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Image::class, mappedBy: "utilisateur")]
     private Collection $images;
 
-  
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $confirmationToken = null;
 
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $enabled = false;
+
+    public function setEnabled(bool $enabled): self
+    {
+        $this->enabled = $enabled;
+        return $this;
+    }
+
+    public function getEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    public function setConfirmationToken(?string $confirmationToken): self
+    {
+        $this->confirmationToken = $confirmationToken;
+        return $this;
+    }
     public function __construct()
     {
         $this->images = new ArrayCollection();

@@ -31,28 +31,18 @@ class ProfilController extends AbstractController
     }
 
     #[Route('/api/profil', name: 'app_profil', methods: ['GET'])]
-    public function profil(Request $request, UtilisateurRepository $utilisateurRepository, JWTTokenManagerInterface $jwtManager, EntityManagerInterface $manager): Response
+    public function profil(Request $request, JWTTokenManagerInterface $jwtManager, TokenStorageInterface $tokenStorage, UtilisateurRepository $utilisateur): Response
     {
-      $decodedJwtToken = $this->jwtManager->decode($this->tokenStorageInterface->getToken());
-      $email = $decodedJwtToken['username'];
-      $utilisateur = $utilisateurRepository->findOneByEmail($email);
-
-      if(!$utilisateur)
-      {
-        return new JsonResponse
-        (
-            [
-              'status'=>false,
-              'message'=>'Utilisateur non trouve'
-
-            ] 
-
-        );
-      }
-
-      return $this->json($utilisateur);
-
+        $token = $tokenStorage->getToken();
+        $user = $token->getUser();
+    
+        if (!$user instanceof Utilisateur) {
+            return new JsonResponse(['message' => 'Utilisateur non authentifié.'], 401);
+        }
+    
+        return $this->json($user);
     }
+    
 
     #[Route('/api/profil_modif', name: 'app_profil_modif', methods: ['PUT'])]
     public function profilModif(Request $request, UtilisateurRepository $utilisateurRepository, JWTTokenManagerInterface $jwtManager, EntityManagerInterface $manager): Response
