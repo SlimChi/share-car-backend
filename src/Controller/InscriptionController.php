@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Service\CustomMailerService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Mime\Address;
+use Twig\Environment;
 
 class InscriptionController extends AbstractController
 {
@@ -22,11 +23,12 @@ class InscriptionController extends AbstractController
     private $utilisateur;
     private $mailer;
 
-    public function __construct(EntityManagerInterface $manager, UtilisateurRepository $utilisateur, MailerInterface $mailer)
+    public function __construct(EntityManagerInterface $manager, UtilisateurRepository $utilisateur, MailerInterface $mailer, Environment $twig)
     {
         $this->manager = $manager;
         $this->utilisateur = $utilisateur;
         $this->mailer = $mailer;
+        $this->twig = $twig; 
     }
 
     #[Route('/inscription', name: 'app_inscription', methods: ['POST'])]
@@ -77,12 +79,13 @@ class InscriptionController extends AbstractController
 
          // Créez un email de confirmation
          $email = (new Email())
-         ->from('noreply@example.com')
+         ->from(new Address('noreply@example.com'))
          ->to($email)
          ->subject('Confirmez votre inscription')
-         ->text(
-             'Cliquez sur le lien suivant pour confirmer votre inscription : ' .
-             $this->generateUrl('app_confirm_inscription', ['token' => $confirmationToken], UrlGeneratorInterface::ABSOLUTE_URL)
+         ->html(
+             $this->twig->render('emails/confirmation_email.html.twig', [
+                 'confirmationUrl' => $this->generateUrl('app_confirm_inscription', ['token' => $confirmationToken], UrlGeneratorInterface::ABSOLUTE_URL)
+             ])
          );
  
             // Envoyez l'email en utilisant le service de messagerie
