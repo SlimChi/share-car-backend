@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Service\CustomMailerService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Mime\Address;
 
 class InscriptionController extends AbstractController
 {
@@ -89,7 +90,7 @@ class InscriptionController extends AbstractController
      
          // Stockez le jeton de confirmation dans la base de données (dans la table Utilisateur)
          $utilisateur->setConfirmationToken($confirmationToken);
-
+         $utilisateur->setEnabled(false);
          $this->manager->persist($utilisateur);
          $this->manager->flush();  
  

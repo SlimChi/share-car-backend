@@ -22,28 +22,34 @@ class ConnexionController extends AbstractController
     public function connexion(Request $request, UtilisateurRepository $utilisateurRepository): Response
     {
         $data = json_decode($request->getContent(), true);
-
+    
         $email = $data['email'];
         $mot_de_passe = $data['mot_de_passe'];
-
+    
         $utilisateur = $utilisateurRepository->findOneByEmail($email);
         
         if (!$utilisateur || !password_verify($mot_de_passe, $utilisateur->getPassword())) {
             return $this->json(['message' => 'Email ou mot de passe invalide'], 403);
         }
-
+    
+        // Vérifiez si l'utilisateur est activé
+        if (!$utilisateur->getEnabled()) {
+            return $this->json(['message' => "Votre compte n'est pas activé. Veuillez vérifier votre e-mail pour l'activer."], 403);
+        }
+    
         // Ici, nous devons créer un tableau associatif pour les données du payload.
         $payload = [
             'id' => $utilisateur->getId(),
             'email' => $utilisateur->getEmail(),
             'roles' => $utilisateur->getRoles(),
         ];
-
+    
         // Créez le jeton JWT avec les données du payload.
         $token = $this->jwtManager->create($utilisateur, $payload);
-
+    
         return $this->json(['token' => $token]);
     }
+    
 
    
 }
