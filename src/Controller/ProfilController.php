@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class ProfilController extends AbstractController
 {
@@ -185,5 +185,39 @@ class ProfilController extends AbstractController
     
         return new JsonResponse(['images' => $imageData]);
     }
+
+    #[Route('/api/profil/updatepassword', name: 'app_modification_mot_de_passe', methods: ['POST'])]
+    public function modifierMotDePasse(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
+    {
+ 
+    $user = $this->getUser();
+
+    if (!$user instanceof Utilisateur) {
+        return new JsonResponse(['message' => 'Utilisateur non authentifié.'], 401);
+    }
+
+    $data = json_decode($request->getContent(), true);
+
+    if (!isset($data['ancien_mot_de_passe']) || !isset($data['nouveau_mot_de_passe'])) {
+        return new JsonResponse(['message' => 'Les champs requis sont manquants.'], 400);
+    }
+
+
+    $ancienMotDePasse = $data['ancien_mot_de_passe'];
+    if (!$passwordHasher->isPasswordValid($user, $ancienMotDePasse)) {
+        return new JsonResponse(['message' => 'Mot de passe actuel incorrect.'], 400);
+    }
+
+    $nouveauMotDePasse = $data['nouveau_mot_de_passe'];
+
+    $hashedPassword = $passwordHasher->hashPassword($user, $nouveauMotDePasse);
+    $user->setMotDePasse($hashedPassword);
+
+    $entityManager->flush();
+
+    return new JsonResponse(['message' => 'Mot de passe modifié avec succès.'], 200);
+}
+
+    
 
 }
