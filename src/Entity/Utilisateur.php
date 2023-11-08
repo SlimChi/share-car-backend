@@ -60,6 +60,10 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Image::class, mappedBy: "utilisateur")]
     private Collection $images;
 
+    #[ORM\OneToMany(targetEntity: ImageVoitures::class, mappedBy: "utilisateur")]
+    private Collection $imagesVoitures;
+
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $confirmationToken = null;
 
@@ -85,11 +89,17 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->images = new ArrayCollection();
+        $this->imagesVoitures = new ArrayCollection();
     }
 
     public function getImages(): Collection
     {
         return $this->images;
+    }
+    
+    public function getImageVoitures(): Collection
+    {
+        return $this->imagesVoitures; 
     }
 
     public function getId(): ?int

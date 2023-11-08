@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller;
+
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use App\Entity\Utilisateur;
@@ -129,7 +130,7 @@ class InscriptionController extends AbstractController
      
          return new JsonResponse([
              'status' => true,
-             'message' => 'Inscription confirmée avec succès. Vous pouvez maintenant vous connecter.'
+             'message' => 'Email confirmer. Vous pouvez maintenant vous connecter.'
          ]);
      }
      

@@ -185,5 +185,5 @@ class ProfilController extends AbstractController
     
         return new JsonResponse(['images' => $imageData]);
     }
-    
+
 }
