@@ -67,6 +67,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $confirmationToken = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $resetPasswordToken = null;
+
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $enabled = false;
 
@@ -86,6 +89,15 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         $this->confirmationToken = $confirmationToken;
         return $this;
     }
+
+    public function setResetPasswordToken(?string $resetPasswordToken): self
+    {
+        $this->resetPasswordToken = $resetPasswordToken;
+    
+        return $this;
+    }
+    
+
     public function __construct()
     {
         $this->images = new ArrayCollection();

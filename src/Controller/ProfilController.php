@@ -16,6 +16,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 
 class ProfilController extends AbstractController
 {
@@ -49,6 +50,10 @@ class ProfilController extends AbstractController
     { 
       $data=json_decode($request->getContent(),true);
       
+      $nom=$data['nom'];
+      $prenom=$data['prenom'];
+      $pseudo=$data['pseudo'];
+      $email=$data['email'];
       $adresse=$data['adresse'];
       $code_postal=$data['code_postal'];
       $ville=$data['ville'];
@@ -72,6 +77,10 @@ class ProfilController extends AbstractController
       }
       if($utilisateur)
        {         
+         $utilisateur->setNom($nom);
+         $utilisateur->setPrenom($prenom);
+         $utilisateur->setPseudo($pseudo);
+         $utilisateur->setEmail($email);
          $utilisateur->setAdresse($adresse);
          $utilisateur->setCodePostal($code_postal);
          $utilisateur->setVille($ville);
@@ -187,8 +196,21 @@ class ProfilController extends AbstractController
     }
 
     #[Route('/api/profil/updatepassword', name: 'app_modification_mot_de_passe', methods: ['POST'])]
-    public function modifierMotDePasse(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
+    public function modifierMotDePasse(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, JWTTokenManagerInterface $jwtManager, TokenStorageInterface $tokenStorage): Response
     {
+        // Récupérez le token JWT de l'utilisateur actuel
+        $token = $tokenStorage->getToken();
+        
+        if (!$token) {
+            return new JsonResponse(['message' => 'Utilisateur non authentifié.'], 401);
+        }
+    
+        // Vérifiez si le token est valide en essayant de le décoder
+        try {
+            $user = $jwtManager->decode($token);
+        } catch (JWTDecodeFailureException $e) {
+            return new JsonResponse(['message' => 'Jeton invalide.'], 401);
+        }
  
     $user = $this->getUser();
 
@@ -218,6 +240,23 @@ class ProfilController extends AbstractController
     return new JsonResponse(['message' => 'Mot de passe modifié avec succès.'], 200);
 }
 
-    
+#[Route('/api/desactiver_profil', name: 'app_profil_desactiver', methods: ['POST'])]
+public function desactiverCompte(Request $request, EntityManagerInterface $entityManager): JsonResponse
+{
+    $user = $this->getUser();
+
+    if (!$user instanceof Utilisateur) {
+        return new JsonResponse(['message' => 'Utilisateur non authentifié.'], 401);
+    }
+
+    // Ajoutez le code pour désactiver le compte de l'utilisateur ici.
+    $user->setEnabled(false);
+
+    $entityManager->persist($user);
+    $entityManager->flush();
+
+    return new JsonResponse(['message' => 'Compte désactivé avec succès.']);
+}
+
 
 }

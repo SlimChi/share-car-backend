@@ -16,6 +16,7 @@ use App\Service\CustomMailerService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Mime\Address;
 use Twig\Environment;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class InscriptionController extends AbstractController
 {
@@ -134,7 +135,73 @@ class InscriptionController extends AbstractController
          ]);
      }
      
-     
+     #[Route('/reinitialisationmdp', name: 'reinitialisation-mdp', methods: ['POST'])]
+    public function demandeReinitialisationMotDePasse(Request $request, UtilisateurRepository $utilisateurRepository): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $email = $data['email'];
+
+        // Recherchez l'utilisateur par son adresse email
+        $utilisateur = $utilisateurRepository->findOneBy(['email' => $email]);
+
+        if (!$utilisateur) {
+            return new JsonResponse(['status' => false, 'message' => 'Aucun utilisateur trouvé avec cette adresse email.']);
+        }
+
+        // Générez un jeton de réinitialisation de mot de passe
+        $token = bin2hex(random_bytes(32));
+
+        // Enregistrez le jeton de réinitialisation de mot de passe dans la base de données (dans la table Utilisateur)
+        $utilisateur->setResetPasswordToken($token);
+        $this->manager->flush();
+
+        // Envoi de l'e-mail de réinitialisation
+        $email = (new Email())
+            ->from('noreply@example.com')
+            ->to($email)
+            ->subject('Réinitialisation de mot de passe')
+            ->html(
+                $this->twig->render('resetPasswordEmail/resetpassword.html.twig', [
+                    'resetPasswordUrl' => $this->generateUrl('reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL),
+                    'firstName' => $utilisateur->getNom(),
+                    'lastName' => $utilisateur->getPrenom(),
+                ])
+            );
+
+        $this->mailer->send($email);
+
+        return new JsonResponse([
+            'status' => true,
+            'message' => 'Un e-mail de réinitialisation de mot de passe a été envoyé avec succès.',
+            'resetPasswordToken' => $token,
+        ]);
+    }
+
+    #[Route('/resetpassword/{token}', name: 'reset_password', methods: ['POST'])]
+    public function resetPassword(Request $request, string $token, UtilisateurRepository $utilisateurRepository, UserPasswordHasherInterface $passwordHasher): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $password = $data['password'];
+
+        // Recherchez l'utilisateur par le jeton de réinitialisation de mot de passe
+        $utilisateur = $utilisateurRepository->findOneBy(['resetPasswordToken' => $token]);
+
+        if (!$utilisateur) {
+            return new JsonResponse(['status' => false, 'message' => 'Jeton de réinitialisation de mot de passe invalide.']);
+        }
+
+        // Réinitialisez le mot de passe de l'utilisateur
+        $hashedPassword = $passwordHasher->hashPassword($utilisateur, $password);
+        $utilisateur->setMotDePasse($hashedPassword);
+        $utilisateur->setResetPasswordToken(null);
+
+        $this->manager->flush();
+
+        return new JsonResponse([
+            'status' => true,
+            'message' => 'Mot de passe réinitialisé avec succès.',
+        ]);
+    }
 
     }
 

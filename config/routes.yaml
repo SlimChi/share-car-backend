@@ -11,3 +11,12 @@ controllers:
 api_login_check:
     path: /api/login_check
     
+app_demande_reinitialisation_mot_de_passe:
+    path: /demande-reinitialisation-mot-de-passe
+    controller: App\Controller\InscriptionController::demandeReinitialisationMotDePasse
+    methods: ['POST']
+
+reset_password:
+    path: /resetpassword/{token}
+    controller: App\Controller\InscriptionController::resetPassword
+    methods: [POST]
