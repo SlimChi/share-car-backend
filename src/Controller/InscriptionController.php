@@ -165,6 +165,7 @@ class InscriptionController extends AbstractController
                     'resetPasswordUrl' => $this->generateUrl('reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL),
                     'firstName' => $utilisateur->getNom(),
                     'lastName' => $utilisateur->getPrenom(),
+                    'token' => $token,
                 ])
             );
 
@@ -181,13 +182,13 @@ class InscriptionController extends AbstractController
     public function resetPassword(Request $request, string $token, UtilisateurRepository $utilisateurRepository, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $password = $data['password'];
+        $password = $data['newpassword'];
 
         // Recherchez l'utilisateur par le jeton de réinitialisation de mot de passe
         $utilisateur = $utilisateurRepository->findOneBy(['resetPasswordToken' => $token]);
 
         if (!$utilisateur) {
-            return new JsonResponse(['status' => false, 'message' => 'Jeton de réinitialisation de mot de passe invalide.']);
+            return new JsonResponse(['status' => false, 'message' => 'Jeton de réinitialisation de mot de passe expiré.']);
         }
 
         // Réinitialisez le mot de passe de l'utilisateur
@@ -201,6 +202,7 @@ class InscriptionController extends AbstractController
             'status' => true,
             'message' => 'Mot de passe réinitialisé avec succès.',
         ]);
+        
     }
 
     }
