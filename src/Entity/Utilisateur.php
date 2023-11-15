@@ -73,6 +73,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $enabled = false;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $biographie = null;
+
     public function setEnabled(bool $enabled): self
     {
         $this->enabled = $enabled;
@@ -277,5 +280,17 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // Cette méthode doit retourner une chaîne unique identifiant l'utilisateur.
         return $this->email; // Utilisez l'email comme identifiant, par exemple.
+    }
+
+    public function getBiographie(): ?string
+    {
+        return $this->biographie;
+    }
+
+    public function setBiographie(?string $biographie): static
+    {
+        $this->biographie = $biographie;
+
+        return $this;
     }
 }

@@ -16,12 +16,11 @@ class ImageController extends AbstractController
     #[Route('/upload-image', name: 'upload_image', methods: ['POST'])]
     public function uploadImage(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
-        // Récupérez les données de l'image depuis la requête
+     
         $data = json_decode($request->getContent(), true);
 
-        // Vérifiez si l'URL de l'image est présente dans les données
         if (isset($data['image_url'])) {
-            // Créez une nouvelle entité Image et enregistrez l'URL de l'image en base de données
+         
             $image = new Image();
             $image->setUrl($data['image_url']);
 

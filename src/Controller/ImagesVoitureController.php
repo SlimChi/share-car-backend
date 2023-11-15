@@ -104,7 +104,7 @@ class ImagesVoitureController extends AbstractController
             return new JsonResponse(['message' => 'Image non trouvée.'], 404);
         }
     
-        // Supprimez l'image de la base de données
+  
         $entityManager->remove($image);
         $entityManager->flush();
     

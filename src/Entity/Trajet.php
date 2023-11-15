@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Entity;
-
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use App\Repository\TrajetRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -31,11 +32,11 @@ class Trajet
     #[ORM\Column]
     private ?bool $animaux = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $date_depart = null;
+    #[ORM\Column]
+    private ?string $date_depart = null;
 
-    #[ORM\Column(type: Types::TIME_MUTABLE)]
-    private ?\DateTimeInterface $heure_depart = null;
+    #[ORM\Column]
+    private ?string $heure_depart = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -45,6 +46,19 @@ class Trajet
     #[ORM\JoinColumn(nullable: false)]
     private ?Utilisateur $utilisateur = null;
 
+    #[ORM\OneToMany(mappedBy: 'trajet', targetEntity: Etape::class, orphanRemoval: true)]
+    private Collection $etapes;
+
+    public function __construct()
+    {
+        $this->etapes = new ArrayCollection();
+    }
+
+    public function getEtapes(): Collection
+    {
+        return $this->etapes;
+    }
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -110,24 +124,24 @@ class Trajet
         return $this;
     }
 
-    public function getDateDepart(): ?\DateTimeInterface
+    public function getDateDepart(): ?string
     {
         return $this->date_depart;
     }
 
-    public function setDateDepart(\DateTimeInterface $date_depart): static
+    public function setDateDepart(string $date_depart): static
     {
         $this->date_depart = $date_depart;
 
         return $this;
     }
 
-    public function getHeureDepart(): ?\DateTimeInterface
+    public function getHeureDepart(): ?string
     {
         return $this->heure_depart;
     }
 
-    public function setHeureDepart(\DateTimeInterface $heure_depart): static
+    public function setHeureDepart(string $heure_depart): static
     {
         $this->heure_depart = $heure_depart;
 
@@ -151,10 +165,11 @@ class Trajet
         return $this->utilisateur;
     }
 
-    public function setutilisateur(?Utilisateur $utilisateur): static
-    {
-        $this->utilisateur = $utilisateur;
+    public function setUtilisateur(?Utilisateur $utilisateur): static
+{
+    $this->utilisateur = $utilisateur;
 
-        return $this;
-    }
+    return $this;
+}
+
 }

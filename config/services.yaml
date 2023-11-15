@@ -7,6 +7,7 @@ parameters:
     profile.folder: '%kernel.project_dir%/public/datas'
     profile.folder.public_path: 'datas'
 
+
 services:
     Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface: '@security.password_encoder'
     # default configuration for services in *this* file

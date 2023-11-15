@@ -17,22 +17,24 @@ class Etape
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $type = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $adresse = null;
+    private ?string $adresse_depart = null;
 
     #[ORM\Column]
-    private ?int $code_postal = null;
+    private ?int $code_postal_depart = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $ville = null;
+    private ?string $ville_depart = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: '0')]
-    private ?string $longitude = null;
+    #[ORM\Column(length: 255)]
+    private ?string $adresse_arrivee = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: '0')]
-    private ?string $latitude = null;
+    #[ORM\Column]
+    private ?int $code_postal_arrivee = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $ville_arrivee = null;
+
+   
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -43,77 +45,81 @@ class Etape
         return $this->id;
     }
 
-    public function getType(): ?string
+
+
+  
+    public function getAdresseDepart(): ?string
     {
-        return $this->type;
+        return $this->adresse_depart;
     }
 
-    public function setType(string $type): static
+    public function setAdresseDepart(string $adresse_depart): static
     {
-        $this->type = $type;
+        $this->adresse_depart = $adresse_depart;
 
         return $this;
     }
 
-    public function getAdresse(): ?string
+    public function getCodePostalDepart(): ?int
     {
-        return $this->adresse;
+        return $this->code_postal_depart;
     }
 
-    public function setAdresse(string $adresse): static
+    public function setCodePostalDepart(int $code_postal_depart): static
     {
-        $this->adresse = $adresse;
+        $this->code_postal_depart = $code_postal_depart;
 
         return $this;
     }
 
-    public function getCodePostal(): ?int
+    public function getVilleDepart(): ?string
     {
-        return $this->code_postal;
+        return $this->ville_depart;
     }
 
-    public function setCodePostal(int $code_postal): static
+    public function setVilleDepart(string $ville_depart): static
     {
-        $this->code_postal = $code_postal;
+        $this->ville_depart = $ville_depart;
+
+        return $this;
+    }
+    public function getAdresseArrivee(): ?string
+    {
+        return $this->adresse_arrivee;
+    }
+
+    public function setAdresseArrivee(string $adresse_arrivee): static
+    {
+        $this->adresse_arrivee = $adresse_arrivee;
 
         return $this;
     }
 
-    public function getVille(): ?string
+    public function getCodePostalArrivee(): ?int
     {
-        return $this->ville;
+        return $this->code_postal_arrivee;
     }
 
-    public function setVille(string $ville): static
+    public function setCodePostalArrivee(int $code_postal_arrivee): static
     {
-        $this->ville = $ville;
+        $this->code_postal_arrivee = $code_postal_arrivee;
 
         return $this;
     }
 
-    public function getLongitude(): ?string
+    public function getVilleArrivee(): ?string
     {
-        return $this->longitude;
+        return $this->ville_arrivee;
     }
 
-    public function setLongitude(string $longitude): static
+    public function setVilleArrivee(string $ville_arrivee): static
     {
-        $this->longitude = $longitude;
+        $this->ville_arrivee = $ville_arrivee;
 
         return $this;
     }
 
-    public function getLatitude(): ?string
-    {
-        return $this->latitude;
-    }
-
-    public function setLatitude(string $latitude): static
-    {
-        $this->latitude = $latitude;
-
-        return $this;
-    }
+    
 
     public function getTrajet(): ?Trajet
     {

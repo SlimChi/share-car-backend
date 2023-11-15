@@ -98,10 +98,13 @@ class ProfilController extends AbstractController
            ]
            );
     }
-
-    #[Route('/api/profil_avatar', name: 'app_profil_avatar', methods: ['PUT'])]
-    public function profilModifAvatar(Request $request, UtilisateurRepository $utilisateurRepository, JWTTokenManagerInterface $jwtManager, EntityManagerInterface $manager): Response
+    #[Route('/api/profil_modif_bio', name: 'app_profil_modif_bio', methods: ['PUT'])]
+    public function profilModifBio(Request $request, UtilisateurRepository $utilisateurRepository, JWTTokenManagerInterface $jwtManager, EntityManagerInterface $manager): Response
     { 
+      $data=json_decode($request->getContent(),true);
+    
+      $biographie=$data['biographie'];
+;
       $decodedJwtToken = $this->jwtManager->decode($this->tokenStorageInterface->getToken());
       $email = $decodedJwtToken['username'];
       $utilisateur = $utilisateurRepository->findOneByEmail($email);
@@ -119,18 +122,11 @@ class ProfilController extends AbstractController
         );
       }
       if($utilisateur)
-       {
-         $uploadedFile = $request->files->get('avatar');
+       {         
+         $utilisateur->setBiographie($biographie);
 
-         if($uploadedFile)
-         {
-           $fileName = bin2hex(random_bytes(10)).'.'.$uploadedFile->guessExtension();
-           $uploadedFile->move("../public/datas",
-           $fileName);
-           $utilisateur->setAvatar($fileName);
-         }
        }
-       
+
        $this->manager->persist($utilisateur);
        $this->manager->flush();
 

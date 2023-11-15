@@ -30,7 +30,7 @@ class VoitureController extends AbstractController
         $this->tokenStorageInterface = $tokenStorageInterface;
     }
 
-    #[Route('/api/modeles', name: 'app_voiture', methods: ['GET'])]
+    #[Route('/api_modeles', name: 'app_voiture', methods: ['GET'])]
     public function voitureModeles(Request $request, JWTTokenManagerInterface $jwtManager, TokenStorageInterface $tokenStorage, UtilisateurRepository $utilisateur, ModelesRepository $modeles): Response
     {
         $modeles = $modeles->findAll();
