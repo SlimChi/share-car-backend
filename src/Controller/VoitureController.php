@@ -11,6 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\UtilisateurRepository;
 use App\Repository\ModelesRepository;
+use App\Repository\VoitureRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -79,30 +80,63 @@ class VoitureController extends AbstractController
         return new JsonResponse(['message' => 'Voiture ajoutée avec succès.']);
     }
 
-    #[Route('/api/voitures', name: 'app_voitures', methods: ['GET'])]
-    public function getVoitures(): JsonResponse
+    // #[Route('/api/voitures', name: 'app_voitures', methods: ['GET'])]
+    // public function getVoitures(): JsonResponse
+    // {
+    //     // Récupérez l'utilisateur connecté
+    //     $user = $this->getUser();
+
+    //     if (!$user instanceof Utilisateur) {
+    //         return new JsonResponse(['message' => 'Utilisateur non authentifié.'], 401);
+    //     }
+
+    //     // Récupérez les voitures de l'utilisateur
+    //     $voitures = $this->getDoctrine()->getRepository(\App\Entity\Voiture::class)->findBy(['utilisateur' => $user]);
+
+    //     // Transformez les données des voitures en un format adapté pour la réponse JSON
+    //     $formattedVoitures = [];
+    //     foreach ($voitures as $voiture) {
+    //         $formattedVoitures[] = [
+    //             'modele' => $voiture->getModeles()->getNom(), // Vous pouvez ajuster les champs en fonction de votre modèle de données
+    //             'nbre_de_places' => $voiture->getNbreDePlaces(),
+    //             'nbre_petits_bagages' => $voiture->getNbrePetitsBagages(),
+    //             'nbre_grands_bagages' => $voiture->getNbreGrandsBagages(),
+    //         ];
+    //     }
+
+    //     return new JsonResponse($formattedVoitures);
+    // }
+
+    #[Route('/api/mesvoitures', name: 'app_voitures', methods: ['GET'])]
+    public function getMesVoitures(VoitureRepository $voitureRepository): JsonResponse
     {
-        // Récupérez l'utilisateur connecté
         $user = $this->getUser();
 
         if (!$user instanceof Utilisateur) {
             return new JsonResponse(['message' => 'Utilisateur non authentifié.'], 401);
         }
 
-        // Récupérez les voitures de l'utilisateur
-        $voitures = $this->getDoctrine()->getRepository(\App\Entity\Voiture::class)->findBy(['utilisateur' => $user]);
+        $voitures = $voitureRepository->findBy(['utilisateur' => $user], ['modeles' => 'ASC']);
 
-        // Transformez les données des voitures en un format adapté pour la réponse JSON
         $formattedVoitures = [];
         foreach ($voitures as $voiture) {
+            $modele = $voiture->getModeles();
+            $modeleNom = $modele ? $modele->getModele() : null;
+
             $formattedVoitures[] = [
-                'modele' => $voiture->getModeles()->getNom(), // Vous pouvez ajuster les champs en fonction de votre modèle de données
-                'nbre_de_places' => $voiture->getNbreDePlaces(),
-                'nbre_petits_bagages' => $voiture->getNbrePetitsBagages(),
-                'nbre_grands_bagages' => $voiture->getNbreGrandsBagages(),
+                'voiture' => [
+                    'modele' => $modeleNom,
+                    'nbre_de_places' => $voiture->getNbreDePlaces(),
+                    'nbre_petits_bagages' => $voiture->getNbrePetitsBagages(),
+                    'nbre_grands_bagages' => $voiture->getNbreGrandsBagages(),
+                ],
+                'modele_details' => $modele ? [
+                    'marque' => $modele->getMarque(),
+                    'modele' => $modele->getModele(),
+                ] : null,
             ];
         }
 
-        return new JsonResponse($formattedVoitures);
+        return $this->json($formattedVoitures);
     }
 }

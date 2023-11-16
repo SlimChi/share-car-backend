@@ -105,6 +105,7 @@ class TrajetController extends AbstractController
     #[Route('/api/get_all_trajets', name: 'app_get_all_trajets', methods: ['GET'])]
     public function getAllTrajets(EntityManagerInterface $entityManager): JsonResponse
     {
+
         $trajets = $entityManager->getRepository(Trajet::class)->findAll();
 
         $formattedTrajets = [];
