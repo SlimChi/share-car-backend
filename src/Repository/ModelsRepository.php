@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Entity\Modeles;
+use App\Entity\Models;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,11 +14,11 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Modeles[]    findAll()
  * @method Modeles[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ModelesRepository extends ServiceEntityRepository
+class ModelsRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Modeles::class);
+        parent::__construct($registry, Models::class);
     }
 
 //    /**

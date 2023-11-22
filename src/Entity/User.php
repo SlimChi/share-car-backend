@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Repository\UtilisateurRepository;
+use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
@@ -11,10 +11,9 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
-
 #[ApiResource]
-#[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
-class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -22,47 +21,46 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $nom = null;
+    private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $prenom = null;
+    private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $mot_de_passe = null;
+    private ?string $password = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $date_inscription = null;
+    private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $pseudo = null;
+    private ?string $username = null;
 
     #[ORM\Column]
-    private ?int $credit_jeton = null;
+    private ?int $creditCoin = null;
 
     #[ORM\Column]
     private array $roles = [];
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $adresse = null;
+    private ?string $address = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $code_postal = null;
+    private ?string $zipCode = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $ville = null;
+    private ?string $city = null;
 
     #[ORM\Column(nullable: true)]
-    private ?string $date_de_naissance = null;
+    private ?string $dateOfBirth = null;
 
-    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: "utilisateur")]
+    #[ORM\OneToMany(targetEntity: Image::class, mappedBy: "user")]
     private Collection $images;
 
-    #[ORM\OneToMany(targetEntity: ImageVoitures::class, mappedBy: "utilisateur")]
-    private Collection $imagesVoitures;
-
+    #[ORM\OneToMany(targetEntity: ImageCars::class, mappedBy: "user")]
+    private Collection $imagesCars;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $confirmationToken = null;
@@ -74,7 +72,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $enabled = false;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $biographie = null;
+    private ?string $biography = null;
 
     public function setEnabled(bool $enabled): self
     {
@@ -104,7 +102,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->images = new ArrayCollection();
-        $this->imagesVoitures = new ArrayCollection();
+        $this->imagesCars = new ArrayCollection();
     }
 
     public function getImages(): Collection
@@ -112,9 +110,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->images;
     }
     
-    public function getImageVoitures(): Collection
+    public function getImagesCars(): Collection
     {
-        return $this->imagesVoitures; 
+        return $this->imagesCars; 
     }
 
     public function getId(): ?int
@@ -122,26 +120,26 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
-    public function getNom(): ?string
+    public function getFirstName(): ?string
     {
-        return $this->nom;
+        return $this->firstName;
     }
 
-    public function setNom(string $nom): static
+    public function setFirstName(string $firstName): static
     {
-        $this->nom = $nom;
+        $this->firstName = $firstName;
 
         return $this;
     }
 
-    public function getPrenom(): ?string
+    public function getLastName(): ?string
     {
-        return $this->prenom;
+        return $this->lastName;
     }
 
-    public function setPrenom(string $prenom): static
+    public function setLastName(string $lastName): static
     {
-        $this->prenom = $prenom;
+        $this->lastName = $lastName;
 
         return $this;
     }
@@ -160,49 +158,54 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getPassword(): ?string
     {
-        return $this->mot_de_passe;
+        return $this->password;
     }
 
-    public function setMotDePasse(string $mot_de_passe): self
+    public function setPassword(string $password): self
     {
-        $this->mot_de_passe = $mot_de_passe;
+        $this->password = $password;
 
         return $this;
     }
 
-    public function getDateInscription(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->date_inscription;
+        return $this->createdAt;
     }
 
-    public function setDateInscription(\DateTimeInterface $date_inscription): static
+    public function setCreatedAt(?\DateTimeInterface $createdAt): static
     {
-        $this->date_inscription = $date_inscription;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
-
-    public function getPseudo(): ?string
+    public function getUsername(): ?string
     {
-        return $this->pseudo;
+        return $this->email;
     }
 
-    public function setPseudo(?string $pseudo): static
+    public function getUsernameProfile(): ?string {
+
+        return $this->username;
+    }
+ 
+
+    public function setUsername(?string $username): static
     {
-        $this->pseudo = $pseudo;
+        $this->username = $username;
 
         return $this;
     }
 
-    public function getCreditJeton(): ?int
+    public function getCreditCoin(): ?int
     {
-        return $this->credit_jeton;
+        return $this->creditCoin;
     }
 
-    public function setCreditJeton(int $credit_jeton): static
+    public function setCreditCoin(?int $creditCoin): static
     {
-        $this->credit_jeton = $credit_jeton;
+        $this->creditCoin = $creditCoin;
 
         return $this;
     }
@@ -223,50 +226,50 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getAdresse(): ?string
+    public function getAddress(): ?string
     {
-        return $this->adresse;
+        return $this->address;
     }
 
-    public function setAdresse(?string $adresse): static
+    public function setAddress(?string $address): static
     {
-        $this->adresse = $adresse;
+        $this->address = $address;
 
         return $this;
     }
 
-    public function getCodePostal(): ?string
+    public function getZipCode(): ?string
     {
-        return $this->code_postal;
+        return $this->zipCode;
     }
 
-    public function setCodePostal(?string $code_postal): static
+    public function setZipCode(?string $zipCode): static
     {
-        $this->code_postal = $code_postal;
+        $this->zipCode = $zipCode;
 
         return $this;
     }
 
-    public function getVille(): ?string
+    public function getCity(): ?string
     {
-        return $this->ville;
+        return $this->city;
     }
 
-    public function setVille(?string $ville): static
+    public function setCity(?string $city): static
     {
-        $this->ville = $ville;
+        $this->city = $city;
 
         return $this;
     }
 
-    public function getDateDeNaissance(): ?string
+    public function getDateOfBirth(): ?string
     {
-        return $this->date_de_naissance;
+        return $this->dateOfBirth;
     }
 
-    public function setDateDeNaissance(?string $date_de_naissance): static
+    public function setDateOfBirth(?string $dateOfBirth): static
     {
-        $this->date_de_naissance = $date_de_naissance;
+        $this->dateOfBirth = $dateOfBirth;
 
         return $this;
     }
@@ -278,18 +281,17 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getUserIdentifier(): string
     {
-        // Cette méthode doit retourner une chaîne unique identifiant l'utilisateur.
-        return $this->email; // Utilisez l'email comme identifiant, par exemple.
+        return $this->email; 
     }
 
-    public function getBiographie(): ?string
+    public function getBiography(): ?string
     {
-        return $this->biographie;
+        return $this->biography;
     }
 
-    public function setBiographie(?string $biographie): static
+    public function setBiography(?string $biography): static
     {
-        $this->biographie = $biographie;
+        $this->biography = $biography;
 
         return $this;
     }

@@ -7,11 +7,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Reservation;
-use App\Entity\Utilisateur;
-use App\Entity\Trajet;
+use App\Entity\User;
+use App\Entity\Trip;
 use App\Repository\ReservationRepository;
-use App\Repository\UtilisateurRepository;
-use App\Repository\TrajetRepository;
+use App\Repository\UserRepository;
+use App\Repository\TripRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -21,37 +21,37 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class ReservationController extends AbstractController
 {
     private $manager;
-    private $utilisateur;
+    private $user;
 
-    public function __construct(EntitymanagerInterface $manager, UtilisateurRepository $utilisateur, TokenStorageInterface $tokenStorageInterface, JWTTokenManagerInterface $jwtManager)
+    public function __construct(EntitymanagerInterface $manager, UserRepository $user, TokenStorageInterface $tokenStorageInterface, JWTTokenManagerInterface $jwtManager)
     {
         $this->manager = $manager;
-        $this->utilisateur = $utilisateur;
+        $this->user = $user;
         $this->jwtManager = $jwtManager;
         $this->tokenStorageInterface = $tokenStorageInterface;
     }
 
     #[Route ('/api/reservation', name: 'app_reservation', methods: ['POST'])]
-    public function ajouterReservation(Request $request, UtilisateurRepository $utilisateurRepository, EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage): Response
+    public function ajouterReservation(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage): Response
     {
         $token = $tokenStorage->getToken();
         $user = $token->getUser();
 
-        if (!$user instanceof Utilisateur) {
+        if (!$user instanceof User) {
             return new JsonResponse(['message' => 'Utilisateur non authentifie.'], 401);
         }
 
         $data = json_decode($request->getContent(), true);
 
-        $statut = $data['statut'];
-        $trajet_id = $data['trajet_id'];
-        $date_reservation = new \DateTime();
+        $status = $data['status'];
+        $trip_id = $data['trip_id'];
+        $reservation_date = new \DateTime();
 
         $reservation = new Reservation();
-        $reservation->setUtilisateur($user);
-        $reservation->setTrajet($this->manager->getRepository(Trajet::class)->find($trajet_id));
-        $reservation->setStatut($statut);
-        $reservation->setDateReservation($date_reservation);
+        $reservation->setUser($user);
+        $reservation->setTrip($this->manager->getRepository(Trip::class)->find($trip_id));
+        $reservation->setStatus($status);
+        $reservation->setReservationDate($reservation_date);
 
         $entityManager->persist($reservation);
 

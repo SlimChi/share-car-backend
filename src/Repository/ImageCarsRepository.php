@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Entity\ImageVoitures;
+use App\Entity\ImageCars;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,11 +14,11 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method ImageVoitures[]    findAll()
  * @method ImageVoitures[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ImageVoituresRepository extends ServiceEntityRepository
+class ImageCarsRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, ImageVoitures::class);
+        parent::__construct($registry, ImageCars::class);
     }
 
 //    /**

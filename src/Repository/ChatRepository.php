@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Entity\Dial;
+use App\Entity\Chat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,11 +14,11 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Dial[]    findAll()
  * @method Dial[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class DialRepository extends ServiceEntityRepository
+class ChatRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Dial::class);
+        parent::__construct($registry, Chat::class);
     }
 
 //    /**

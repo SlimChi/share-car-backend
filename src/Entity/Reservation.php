@@ -17,68 +17,68 @@ class Reservation
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $statut = null;
+    private ?string $status = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $date_reservation = null;
+    private ?\DateTimeInterface $reservation_date = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Utilisateur $utilisateur = null;
+    private ?User $user = null;
     
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Trajet $trajet = null;
+    private ?Trip $trip = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getStatut(): ?string
+    public function getStatus(): ?string
     {
-        return $this->statut;
+        return $this->status;
     }
 
-    public function setStatut(string $statut): static
+    public function setStatus(string $status): static
     {
-        $this->statut = $statut;
+        $this->status = $status;
 
         return $this;
     }
 
-    public function getDateReservation(): ?\DateTimeInterface
+    public function getReservationDate(): ?\DateTimeInterface
     {
-        return $this->date_reservation;
+        return $this->reservation_date;
     }
 
-    public function setDateReservation(\DateTimeInterface $date_reservation): static
+    public function setReservationDate(\DateTimeInterface $reservation_date): static
     {
-        $this->date_reservation = $date_reservation;
+        $this->reservation_date = $reservation_date;
 
         return $this;
     }
 
-    public function getUtilisateur(): ?Utilisateur
+    public function getUser(): ?User
     {
-        return $this->utilisateur;
+        return $this->user;
     }
 
-    public function setUtilisateur(?Utilisateur $utilisateur): static
+    public function setUser(?User $user): static
     {
-        $this->utilisateur = $utilisateur;
+        $this->user = $user;
 
         return $this;
     }
 
-    public function getTrajet(): ?Trajet
+    public function getTrip(): ?Trip
     {
-        return $this->trajet;
+        return $this->trip;
     }
 
-    public function setTrajet(?Trajet $trajet): static
+    public function setTTrip(?Trip $trip): static
     {
-        $this->trajet = $trajet;
+        $this->trip = $trip;
 
         return $this;
     }
