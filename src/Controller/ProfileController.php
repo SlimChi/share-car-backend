@@ -28,13 +28,13 @@ class ProfileController extends AbstractController
         $this->profileService = $profileService;
     }
 
-    #[Route('/api/get_profile', name: 'app_profile', methods: ['GET'])]
+    #[Route('/api/get_profile', name: 'app_get_profile', methods: ['GET'])]
     public function profil(): Response
     {
         return $this->profileService->getProfile();
     }
 
-    #[Route('/api/add_info_profile', name: 'app_profile_modif', methods: ['PUT'])]
+    #[Route('/api/add_info_profile', name: 'app_add_info_profile', methods: ['PUT'])]
     public function addInfoProfil(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -54,6 +54,14 @@ class ProfileController extends AbstractController
     public function getUserImages(): Response
     {
         return $this->profileService->getUserImages();
+    }
+
+    #[Route('/api/add_biography', name: 'app_add_biography', methods: ['PUT'])]
+    public function addBiographyProfile(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+
+        return $this->profileService->addBiographyProfile($data);
     }
 
 }   

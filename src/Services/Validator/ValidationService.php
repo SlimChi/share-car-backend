@@ -127,7 +127,7 @@ class ValidationService
             ]),
             new Assert\Regex([
                 'pattern' => '/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/',
-                'message' => 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.',
+                'message' => 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un des caractères @$!%*?&.',
             ]),
         ]);
     

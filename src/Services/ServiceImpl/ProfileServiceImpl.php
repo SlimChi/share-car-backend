@@ -70,29 +70,6 @@ class ProfileServiceImpl
         ];
     }
 
-    // public function addInfoProfile(array $data): JsonResponse
-    // {
-    //     $token = $this->tokenStorageInterface->getToken();
-    //     $user = $token->getUser();
-
-    //     if (!$user instanceof User) {
-    //         return new JsonResponse(['message' => 'User non authentifié.'], 401);
-    //     }
-
-    //     $user->setFirstName($data['firstName']);
-    //     $user->setLastName($data['lastName']);
-    //     $user->setAddress($data['address']);
-    //     $user->setZipCode($data['zipCode']);
-    //     $user->setCity($data['city']);
-    //     $user->setDateOfBirth($data['dateOfBirth']);
-    //     $user->setBiography($data['biography']);
-
-    //     $this->manager->persist($user);
-    //     $this->manager->flush();
-
-    //     return new JsonResponse($this->serializeUser($user));
-    // }
-
     public function addInfoProfile(array $data): JsonResponse
     {
         $token = $this->tokenStorageInterface->getToken();
@@ -131,7 +108,7 @@ class ProfileServiceImpl
             return new JsonResponse(['message' => 'User non authentifié.'], 401);
         }
 
-        $imageUrl = $data['imageUrl'];
+        $imageUrl = $data['image_url'];
         $image= new Image();
         $image->setUrl($imageUrl);
         $image->setUser($user);
@@ -164,6 +141,25 @@ class ProfileServiceImpl
 
         return new JsonResponse(['images' => $imageData]);
     }
+
+    public function addBiographyProfile(array $data): JsonResponse
+    {
+        $token = $this->tokenStorageInterface->getToken();
+        $user = $token->getUser();
+
+        if (!$user instanceof User) {
+            return new JsonResponse(['message' => 'User non authentifié.'], 401);
+        }
+
+        $user->setBiography($data['biography']);
+
+        $this->manager->persist($user);
+        $this->manager->flush();
+
+        return new JsonResponse($this->serializeUser($user));
+    }
+
+    
 
     
 
