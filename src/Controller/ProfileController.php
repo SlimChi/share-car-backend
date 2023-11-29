@@ -28,13 +28,13 @@ class ProfileController extends AbstractController
         $this->profileService = $profileService;
     }
 
-    #[Route('/api/get_profile', name: 'app_get_profile', methods: ['GET'])]
+    #[Route('/api/get_profile', name: 'app_profile', methods: ['GET'])]
     public function profil(): Response
     {
         return $this->profileService->getProfile();
     }
 
-    #[Route('/api/add_info_profile', name: 'app_add_info_profile', methods: ['PUT'])]
+    #[Route('/api/add_info_profile', name: 'app_profile_modif', methods: ['PUT'])]
     public function addInfoProfil(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -56,6 +56,20 @@ class ProfileController extends AbstractController
         return $this->profileService->getUserImages();
     }
 
+
+    #[Route('/api/profile/updatepassword', name: 'app_updatepassword', methods: ['POST'])]
+    public function updatePassword(Request $request): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        return $this->profileService->updatePassword($data);
+    }
+
+    #[Route('/api/disable-account', name: 'app_disableAccount', methods: ['POST'])]
+    public function disableAccount(): JsonResponse
+    {
+        return $this->profileService->disableAccount();
+    }
+
     #[Route('/api/add_biography', name: 'app_add_biography', methods: ['PUT'])]
     public function addBiographyProfile(Request $request): Response
     {
@@ -63,76 +77,4 @@ class ProfileController extends AbstractController
 
         return $this->profileService->addBiographyProfile($data);
     }
-
-}   
-
-
-
-
-//     #[Route('/api/profil/updatepassword', name: 'app_modification_mot_de_passe', methods: ['POST'])]
-//     public function modifierMotDePasse(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, JWTTokenManagerInterface $jwtManager, TokenStorageInterface $tokenStorage): Response
-//     {
-//         // Récupérez le token JWT de l'user actuel
-//         $token = $tokenStorage->getToken();
-        
-//         if (!$token) {
-//             return new JsonResponse(['message' => 'User non authentifié.'], 401);
-//         }
-    
-//         // Vérifiez si le token est valide en essayant de le décoder
-//         try {
-//             $user = $jwtManager->decode($token);
-//         } catch (JWTDecodeFailureException $e) {
-//             return new JsonResponse(['message' => 'Jeton invalide.'], 401);
-//         }
- 
-//     $user = $this->getUser();
-
-//     if (!$user instanceof User) {
-//         return new JsonResponse(['message' => 'User non authentifié.'], 401);
-//     }
-
-//     $data = json_decode($request->getContent(), true);
-
-//     if (!isset($data['ancien_mot_de_passe']) || !isset($data['nouveau_mot_de_passe'])) {
-//         return new JsonResponse(['message' => 'Les champs requis sont manquants.'], 400);
-//     }
-
-
-//     $ancienMotDePasse = $data['ancien_mot_de_passe'];
-//     if (!$passwordHasher->isPasswordValid($user, $ancienMotDePasse)) {
-//         return new JsonResponse(['message' => 'Mot de passe actuel incorrect.'], 400);
-//     }
-
-//     $nouveauMotDePasse = $data['nouveau_mot_de_passe'];
-
-//     $hashedPassword = $passwordHasher->hashPassword($user, $nouveauMotDePasse);
-//     $user->setMotDePasse($hashedPassword);
-
-//     $entityManager->flush();
-
-//     return new JsonResponse(['message' => 'Mot de passe modifié avec succès.'], 200);
-// }
-
-// #[Route('/api/desactiver_profil', name: 'app_profil_desactiver', methods: ['POST'])]
-// public function desactiverCompte(Request $request, EntityManagerInterface $entityManager): JsonResponse
-// {
-//     $user = $this->getUser();
-
-//     if (!$user instanceof User) {
-//         return new JsonResponse(['message' => 'User non authentifié.'], 401);
-//     }
-
-//     // Ajoutez le code pour désactiver le compte de l'user ici.
-//     $user->setEnabled(false);
-
-//     $entityManager->persist($user);
-//     $entityManager->flush();
-
-//     return new JsonResponse(['message' => 'Compte désactivé avec succès.']);
-// }
-
-
-
-
-// }
+}

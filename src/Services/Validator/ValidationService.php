@@ -13,8 +13,6 @@ class ValidationService
     {
         $validator = Validation::createValidator();
 
-        // Add validations for firstName, lastName, and email as needed
-
         $zipCodeErrors = $validator->validate($data['zipCode'], [
             new Assert\NotBlank(['message' => 'Le code postal ne doit pas être vide.']),
             new Assert\Regex([
@@ -30,25 +28,104 @@ class ValidationService
         $cityErrors = $validator->validate($data['city'], [
             new Assert\NotBlank(['message' => 'La ville ne doit pas être vide.']),
             new Assert\Regex([
-                'pattern' => '/^[a-zA-Z]+$/',
-                'message' => 'La ville ne doit contenir que des lettres.',
+                'pattern' => '/^[a-zA-ZÀ-ÖØ-öø-ÿ\' -]+$/u',
+                'message' => 'La ville ne doit contenir que des lettres, des tirets, des apostrophes et des espaces.',
             ]),
         ]);
-
+        
         if (count($cityErrors) > 0) {
             return ['status' => false, 'message' => $this->formatValidationErrors($cityErrors)];
         }
 
         $dateOfBirthErrors = $validator->validate($data['dateOfBirth'], [
             new Assert\NotBlank(['message' => 'La date de naissance ne doit pas être vide.']),
-            new Assert\Date(['message' => 'La date de naissance doit être une date valide.']),
+            new Assert\DateTime([
+                'message' => 'La date de naissance doit être une date valide.',
+                'format' => 'Y-m-d',
+            ]),
         ]);
-
+        
         if (count($dateOfBirthErrors) > 0) {
             return ['status' => false, 'message' => $this->formatValidationErrors($dateOfBirthErrors)];
         }
+        
 
-        // Additional validations for other fields can be added here.
+        $addressErrors = $validator->validate($data['address'], [
+            new Assert\NotBlank(['message' => "L'adresse ne doit pas être vide."]),
+            new Assert\Regex([
+                'pattern' => '/^[a-zA-Z0-9À-ÖØ-öø-ÿ\' -]+$/u',
+                'message' => "L'adresse ne doit contenir que des lettres, des chiffres, des espaces, des tirets, des apostrophes et des caractères accentués.",
+            ]),
+        ]);
+        
+        if (count($addressErrors) > 0) {
+            return ['status' => false, 'message' => $this->formatValidationErrors($addressErrors)];
+        }
+        
+        $firstNameErrors = $validator->validate($data['firstName'], [
+            new Assert\NotBlank(['message' => 'Le nom ne doit pas être vide.']),
+            new Assert\Length([
+                'min' => 2,
+                'max' => 255,
+                'minMessage' => 'Le nom doit contenir au moins {{ limit }} caractères.',
+                'maxMessage' => 'Le nom ne peut pas dépasser {{ limit }} caractères.',
+            ]),
+            new Assert\Regex([
+                'pattern' => '/\d/',
+                'match' => false,
+                'message' => 'Le nom ne doit pas contenir de chiffres.',
+            ]),
+        ]);
+    
+        if (count($firstNameErrors) > 0) {
+            return ['status' => false, 'message' => $this->formatValidationErrors($firstNameErrors)];
+        }
+    
+        $lastNameErrors = $validator->validate($data['lastName'], [
+            new Assert\NotBlank(['message' => 'Le prénom ne doit pas être vide.']),
+            new Assert\Length([
+                'min' => 2,
+                'max' => 255,
+                'minMessage' => 'Le prénom doit contenir au moins {{ limit }} caractères.',
+                'maxMessage' => 'Le prénom ne peut pas dépasser {{ limit }} caractères.',
+            ]),
+            new Assert\Regex([
+                'pattern' => '/\d/',
+                'match' => false,
+                'message' => 'Le prénom ne doit pas contenir de chiffres.',
+            ]),
+        ]);
+    
+        if (count($lastNameErrors) > 0) {
+            return ['status' => false, 'message' => $this->formatValidationErrors($lastNameErrors)];
+        }
+        $usernameErrors = $validator->validate($data['username'], [
+            new Assert\NotBlank(['message' => 'Le pseudo ne doit pas être vide.']),
+            new Assert\Length([
+                'min' => 2,
+                'max' => 255,
+                'minMessage' => 'Le pseudo doit contenir au moins {{ limit }} caractères.',
+                'maxMessage' => 'Le pseudo ne peut pas dépasser {{ limit }} caractères.',
+            ]),
+            // new Assert\Regex([
+            //     'pattern' => '/\d/',
+            //     'match' => false,
+            //     'message' => 'Le pseudo ne doit pas contenir de chiffres.',
+            // ]),
+        ]);
+    
+        if (count($usernameErrors) > 0) {
+            return ['status' => false, 'message' => $this->formatValidationErrors($usernameErrors)];
+        }
+
+        $emailErrors = $validator->validate($data['email'], [
+            new Assert\NotBlank(['message' => "L'e-mail ne doit pas être vide."]),
+            new Assert\Email(['message' => "L'e-mail n'est pas valide."]),
+        ]);
+
+        if (count($emailErrors) > 0) {
+            return ['status' => false, 'message' => $this->formatValidationErrors($emailErrors)];
+        }
 
         return ['status' => true];
     }
@@ -127,7 +204,7 @@ class ValidationService
             ]),
             new Assert\Regex([
                 'pattern' => '/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/',
-                'message' => 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un des caractères @$!%*?&.',
+                'message' => 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un des caractères spéciaux suivant @$!%*?&.',
             ]),
         ]);
     

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Entity;
-
+use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -11,8 +11,10 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
-#[ApiResource]
-#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ApiResource(
+    normalizationContext: ['groups' => ['user:read'], 'hydra:disabled' => false],
+    denormalizationContext: ['groups' => ['user:write']]
+)]#[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -20,39 +22,49 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(length: 255)]
     private ?string $lastName = null;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(length: 255)]
     private ?string $firstName = null;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
     private ?string $password = null;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $username = null;
 
+    #[Groups(['user:read'])]
     #[ORM\Column]
     private ?int $creditCoin = null;
 
     #[ORM\Column]
     private array $roles = [];
 
+    #[Groups(['user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $address = null;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $zipCode = null;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $city = null;
 
+    #[Groups(['user:read'])]
     #[ORM\Column(nullable: true)]
     private ?string $dateOfBirth = null;
 
@@ -71,8 +83,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $enabled = false;
 
+     #[Groups(['user:read'])]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $biography = null;
+
+
+    #[ORM\OneToMany(mappedBy: "sender", targetEntity: Chat::class)]
+    private Collection $sentChats;
+    
+
+    #[ORM\OneToMany(mappedBy: "recipient", targetEntity: Chat::class)]
+    private Collection $receivedChats;
+    
+
 
     public function setEnabled(bool $enabled): self
     {
@@ -103,6 +126,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->images = new ArrayCollection();
         $this->imagesCars = new ArrayCollection();
+        $this->sentChats = new ArrayCollection();
+        $this->receivedChats = new ArrayCollection();
     }
 
     public function getImages(): Collection
@@ -293,6 +318,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->biography = $biography;
 
+        return $this;
+    }
+
+    public function getSentChats(): Collection
+    {
+        return $this->sentChats;
+    }
+
+        public function setSentChats(Collection $sentChats): self
+    {
+        $this->sentChats = $sentChats;
+        return $this;
+    }
+    
+        public function getReceivedChats(): Collection
+    {
+        return $this->receivedChats;
+    }
+
+    public function setReceivedChats(Collection $receivedChats): self
+    {
+        $this->receivedChats = $receivedChats;
         return $this;
     }
 }

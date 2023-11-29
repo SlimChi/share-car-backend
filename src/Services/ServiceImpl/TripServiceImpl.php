@@ -108,6 +108,60 @@ class TripServiceImpl implements TripServiceInterface
         return new JsonResponse($formattedTrips);
     }
 
+    private function getUser(): ?User
+    {
+        $token = $this->tokenStorage->getToken();
+        return $token->getUser();
+    }
+    private function formatTrip(Trip $trip): array
+    {
+        $formattedTrip = [
+            'id' => $trip->getId(),
+            'price' => $trip->getPrice(),
+            'smoker' => $trip->isSmoker(),
+            'silence' => $trip->isSilence(),
+            'music' => $trip->isMusic(),
+            'pets' => $trip->isPets(),
+            'departure_date' => $trip->getDepartureDate(),
+            'departure_time' => $trip->getDepartureTime(),
+            'car' => [
+                'id' => $trip->getCar()->getId(),
+                // Ajoutez d'autres propriétés de la voiture si nécessaire
+            ],
+            'user' => [
+                'id' => $trip->getUser()->getId(),
+                // Ajoutez d'autres propriétés de l'utilisateur si nécessaire
+            ],
+            'steps' => [],
+        ];
+    
+        // Vérifiez si la méthode getSteps() existe et utilisez-la pour récupérer les étapes
+        if (method_exists($trip, 'getSteps')) {
+            $steps = $trip->getSteps();
+        } elseif (method_exists($trip, 'getEtapes')) {
+            // Si getSteps() n'existe pas, essayez avec getEtapes() (en supposant que c'est le nom correct)
+            $steps = $trip->getEtapes();
+        } else {
+            // Si aucune méthode correspondante n'est trouvée, ajustez ce qui est nécessaire
+            $steps = [];
+        }
+    
+        foreach ($steps as $step) {
+            $formattedTrip['steps'][] = [
+                'id' => $step->getId(),
+                'departure_address' => $step->getDepartureAddress(),
+                'departure_zip_code' => $step->getDepartureZipCode(),
+                'departure_city' => $step->getDepartureCity(),
+                'arrival_address' => $step->getArrivalAddress(),
+                'arrival_zip_code' => $step->getArrivalZipCode(),
+                'arrival_city' => $step->getArrivalCity(),
+            ];
+        }
+    
+        return $formattedTrip;
+    }
+    
+
     public function deleteTrip(Request $request): JsonResponse
     {
         $user = $this->getUser();
@@ -139,49 +193,5 @@ class TripServiceImpl implements TripServiceInterface
 
         return new JsonResponse(['message' => 'Trajet supprimé avec succès.']);
     }
-
-    private function getUser(): ?User
-    {
-        $token = $this->tokenStorage->getToken();
-        return $token->getUser();
-    }
-
-    private function formatTrip(Trip $trip): array
-    {
-        $formattedTrip = [
-            'id' => $trip->getId(),
-            'price' => $trip->getPrice(),
-            'smoker' => $trip->isSmoker(),
-            'silence' => $trip->isSilence(),
-            'music' => $trip->isMusic(),
-            'pets' => $trip->isPets(),
-            'departure_date' => $trip->getDepartureDate(),
-            'departure_time' => $trip->getDepartureTime(),
-            'car' => [
-                'id' => $trip->getCar()->getId(),
-                // Ajoutez d'autres propriétés de la voiture si nécessaire
-            ],
-            'user' => [
-                'id' => $trip->getUser()->getId(),
-                // Ajoutez d'autres propriétés de l'utilisateur si nécessaire
-            ],
-            'steps' => [],
-        ];
-
-        $steps = $trip->getSteps();
-
-        foreach ($steps as $step) {
-            $formattedTrip['steps'][] = [
-                'id' => $step->getId(),
-                'departure_address' => $step->getDepartureAddress(),
-                'departure_zip_code' => $step->getDepartureZipCode(),
-                'departure_city' => $step->getDepartureCity(),
-                'arrival_address' => $step->getArrivalAddress(),
-                'arrival_zip_code' => $step->getArrivalZipCode(),
-                'arrival_city' => $step->getArrivalCity(),
-            ];
-        }
-
-        return $formattedTrip;
-    }
+  
 }

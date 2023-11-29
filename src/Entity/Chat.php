@@ -3,40 +3,43 @@
 namespace App\Entity;
 
 use App\Repository\ChatRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Metadata\ApiResource;
- 
-#[ApiResource]
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\DBAL\Types\Types;
+use Symfony\Component\Serializer\Annotation\Groups;
 
+#[ApiResource(normalizationContext: ['groups' => ['chat:read']], denormalizationContext: ['groups' => ['chat:write']])]
 #[ORM\Entity(repositoryClass: ChatRepository::class)]
+#[UniqueConstraint(name: 'unique_chat', columns: ['sender_id', 'recipient_id'])]
 class Chat
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    #[Groups(['chat:read'])]
+    private ?int $id;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $message = null;
+    #[ORM\Column]
+    #[Groups(['chat:read', 'chat:write'])]
+    private ?string $message;
 
-    #[ORM\Column(length: 255)]
-    private ?string $subject = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups(['chat:read', 'chat:write'])] 
+    private ?\DateTimeInterface $createdAt;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $datetime_chat = null;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['chat:read'])]
+    private ?User $sender;
 
-    #[ORM\ManyToOne]
-     #[ORM\JoinColumn(nullable: false)]
-     private ?User $user = null;
-    
-     #[ORM\ManyToOne]
-     #[ORM\JoinColumn(nullable: false)]
-     private ?User $user1 = null;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['chat:read'])]
+    private ?User $recipient;
 
-    public function getId(): ?int
+    public function __construct()
     {
-        return $this->id;
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getMessage(): ?string
@@ -44,58 +47,50 @@ class Chat
         return $this->message;
     }
 
-    public function setMessage(string $message): static
+    public function setMessage(?string $value)
     {
-        $this->message = $message;
-
-        return $this;
+        $this->message = $value;
     }
 
-    public function getSubject(): ?string
+    public function getId(): ?int
     {
-        return $this->subject;
+        return $this->id;
     }
 
-    public function setSubject(string $subject): static
+    public function setId(?int $value)
     {
-        $this->subject = $subject;
-
-        return $this;
+        $this->id = $value;
     }
 
-    public function getDatetimeChat(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->datetime_chat;
+        return $this->createdAt;
     }
 
-    public function setDatetimeChat(\DateTimeInterface $datetime_chat): static
+    public function setCreatedAt(?\DateTimeInterface $value)
     {
-        $this->datetime_chat = $datetime_chat;
-
-        return $this;
+        $this->createdAt = $value;
     }
 
-    public function getUser(): ?User
+    public function getSender(): ?User
     {
-        return $this->User;
+        return $this->sender;
     }
 
-    public function setUser(?User $user): static
+    public function setSender(?User $sender): void
     {
-        $this->user = $user;
-
-        return $this;
+        $this->sender = $sender;
     }
 
-    public function getUser1(): ?User
+    public function getRecipient(): ?User
     {
-        return $this->user1;
+        return $this->recipient;
     }
 
-    public function setUser1(?User $user1): static
+    public function setRecipient(?User $recipient): void
     {
-        $this->user1 = $user1;
-
-        return $this;
+        $this->recipient = $recipient;
     }
+
+
 }

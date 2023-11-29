@@ -83,13 +83,13 @@ class ImagesCarController extends AbstractController
             return new JsonResponse(['message' => 'User non authentifié.'], 401);
         }
     
-        $images = $user->getImageCars(); // Utilisez getImageVoitures au lieu de getImages
+        $images = $user->getImagesCars();
         $imageData = [];
     
         foreach ($images as $image) {
             $imageData[] = [
                 'id' => $image->getId(),
-                'url' => $image->getImageUrl(), // Utilisez getImageUrl au lieu de getUrl
+                'url' => $image->getImageUrl(), 
             ];
         }
     

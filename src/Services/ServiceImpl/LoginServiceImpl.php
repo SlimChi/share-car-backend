@@ -53,7 +53,7 @@ class LoginServiceImpl implements LoginServiceInterface
         }
 
         if (!$user->getEnabled()) {
-            return ['message' => 'Veuillez confirmer votre email', 'status' => 403];
+            return ['message' => 'Votre compte est désactivé !!!', 'status' => 403];
         } 
         
         $payload = [

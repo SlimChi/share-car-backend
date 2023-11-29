@@ -67,8 +67,14 @@ class RegisterServiceImpl implements RegisterServiceInterface
 
         $emailExist = $this->userRepository->findOneByEmail($data['email']);
 
+        $usernameExist = $this->userRepository->findByUsername($data['userName']);
+
         if ($emailExist) {
             return ['status' => false, 'message' => 'Cet email existe déjà, veuillez le changer.'];
+        }
+
+        if($usernameExist) {
+            return ['status' => false, 'message' => 'Ce pseudo existe déjà, veuillez le changer.'];
         }
 
         $hashedPassword = $this->passwordHasher->hashPassword(new User(), $data['password']);

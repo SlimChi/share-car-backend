@@ -9,6 +9,8 @@ use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
+use App\Dto\UserChatDto;
+use App\Entity\Chat;
 
 class UserMapper
 {
@@ -94,7 +96,6 @@ class UserMapper
     }
     
     
-    // Fonction pour vérifier si une propriété est de type DateTimeInterface
     private function isDateTimeProperty($object, $property)
     {
         $types = $this->propertyInfoExtractor->getTypes(get_class($object), $property);
@@ -106,5 +107,28 @@ class UserMapper
         }
     
         return false;
+    }
+    public function convertEntityToUserChatDto(Chat $chat): UserChatDto
+    {
+        return new UserChatDto(
+            $chat->getId(),
+            $chat->getMessage(),
+            $chat->getRecipient()->getId(),
+            $chat->getRecipient()->getUsername(),
+            $chat->getCreatedAt()->format('Y-m-d H:i:s'),
+            $chat->getSender()->getId(), 
+            $chat->getCreatedAt()
+        );
+    }
+    
+
+    public function convertChatCollectionToUserChatDtoCollection(iterable $chats): array
+    {
+        $userChatDtoCollection = [];
+        foreach ($chats as $chat) {
+            $userChatDtoCollection[] = $this->convertEntityToUserChatDto($chat);
+        }
+
+        return $userChatDtoCollection;
     }
 }

@@ -1,18 +1,19 @@
 <?php
 
-namespace App\Repository;
 
+namespace App\Repository;
+use App\Entity\User;
 use App\Entity\Chat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Dial>
+ * @extends ServiceEntityRepository<Chat>
  *
- * @method Dial|null find($id, $lockMode = null, $lockVersion = null)
- * @method Dial|null findOneBy(array $criteria, array $orderBy = null)
- * @method Dial[]    findAll()
- * @method Dial[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Chat|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Chat|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Chat[]    findAll()
+ * @method Chat[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class ChatRepository extends ServiceEntityRepository
 {
@@ -21,28 +22,41 @@ class ChatRepository extends ServiceEntityRepository
         parent::__construct($registry, Chat::class);
     }
 
-//    /**
-//     * @return Dial[] Returns an array of Dial objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('d')
-//            ->andWhere('d.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('d.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * Get messages between two users.
+     *
+     * @param int $recipientId
+     * @param int $otherUserId
+     * @return Chat[]
+     */
+    public function getMessagesByUsers($recipientId, $otherUserId)
+    {
+        return $this->createQueryBuilder('m')
+            ->andWhere('(m.sender = :recipientId AND m.recipient = :otherUserId) OR (m.sender = :otherUserId AND m.recipient = :recipientId)')
+            ->setParameter('recipientId', $recipientId)
+            ->setParameter('otherUserId', $otherUserId)
+            ->getQuery()
+            ->getResult();
+    }
 
-//    public function findOneBySomeField($value): ?Dial
-//    {
-//        return $this->createQueryBuilder('d')
-//            ->andWhere('d.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function deleteAllChatsForUser(User $user)
+{
+    $qb = $this->createQueryBuilder('c');
+    $qb
+        ->delete(Chat::class, 'c')
+        ->where('c.sender = :user OR c.recipient = :user')
+        ->setParameter('user', $user)
+        ->getQuery()
+        ->execute();
+}
+
+public function findChatByIdForUser($id, User $user)
+{
+    return $this->createQueryBuilder('c')
+        ->where('c.id = :id AND (c.sender = :user OR c.recipient = :user)')
+        ->setParameter('id', $id)
+        ->setParameter('user', $user)
+        ->getQuery()
+        ->getOneOrNullResult();
+}
 }

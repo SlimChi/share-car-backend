@@ -18,8 +18,12 @@ interface ProfileServiceInterface
     public function addInfoProfile(array $data): JsonResponse;
 
     public function getUserImages(): JsonResponse;
-
+    
+    public function updatePassword(array $data): JsonResponse;
+    
     public function addImageProfile(array $data): JsonResponse;
+
+    public function disableAccount(): JsonResponse;
 
     public function addBiographyProfile(array $data): JsonResponse;
 }

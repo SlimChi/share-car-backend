@@ -13,9 +13,7 @@ use App\Entity\Image;
 use App\Services\Validator\ValidationService; 
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Constraints as Assert;
-
-// use App\Services\ValidationService;
-
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 
 class ProfileServiceImpl
@@ -24,17 +22,23 @@ class ProfileServiceImpl
     private $tokenStorageInterface;
     private $manager;
     private $validationService;
+    private $passwordHasher;
+    private $entityManager;
+
     public function __construct(
         JWTTokenManagerInterface $jwtManager,
         TokenStorageInterface $tokenStorageInterface, 
-        EntityManagerInterface $manager,
+        EntityManagerInterface $entityManager,
         ValidationService $validationService,
-      )
+        UserPasswordHasherInterface $passwordHasher,
+        
+    )
     {
         $this->jwtManager = $jwtManager;
         $this->tokenStorageInterface = $tokenStorageInterface;
-        $this->manager = $manager;
+        $this->entityManager = $entityManager;
         $this->validationService = $validationService;
+        $this->passwordHasher = $passwordHasher;
     }
     public function getProfile(): Response
     {
@@ -70,34 +74,38 @@ class ProfileServiceImpl
         ];
     }
 
+
+
     public function addInfoProfile(array $data): JsonResponse
-    {
-        $token = $this->tokenStorageInterface->getToken();
-        $user = $token->getUser();
+{
+    $token = $this->tokenStorageInterface->getToken();
+    $user = $token->getUser();
 
-        if (!$user instanceof User) {
-            return new JsonResponse(['message' => 'User non authentifié.'], 401);
-        }
-
-        $validationResult = $this->validationService->validateDataProfile($data);
-
-        if (!$validationResult['status']) {
-            return new JsonResponse(['message' => 'Validation failed', 'errors' => $validationResult['message']], 400);
-        }
-
-        $user->setFirstName($data['firstName']);
-        $user->setLastName($data['lastName']);
-        $user->setAddress($data['address']);
-        $user->setZipCode($data['zipCode']);
-        $user->setCity($data['city']);
-        $user->setDateOfBirth($data['dateOfBirth']);
-        // $user->setBiography($data['biography']);
-
-        $this->manager->persist($user);
-        $this->manager->flush();
-
-        return new JsonResponse($this->serializeUser($user));
+    if (!$user instanceof User) {
+        return new JsonResponse(['message' => 'User non authentifié.'], 401);
     }
+
+    $validationResult = $this->validationService->validateDataProfile($data);
+
+    if (!$validationResult['status']) {
+        return new JsonResponse(['message' => 'Validation failed', 'errors' => $validationResult['message']], 400);
+    }
+
+    // Modifier l'entité User uniquement si la validation réussit
+    $user->setFirstName($data['firstName']);
+    $user->setLastName($data['lastName']);
+    $user->setUsername($data['username']);
+    $user->setAddress($data['address']);
+    $user->setZipCode($data['zipCode']);
+    $user->setCity($data['city']);
+    $user->setDateOfBirth($data['dateOfBirth']);
+    // $user->setBiography($data['biography']);
+
+    $this->entityManager->persist($user);
+    $this->entityManager->flush();
+
+    return new JsonResponse($this->serializeUser($user));
+}
         
         public function addImageProfile(array $data): JsonResponse
     {
@@ -108,13 +116,13 @@ class ProfileServiceImpl
             return new JsonResponse(['message' => 'User non authentifié.'], 401);
         }
 
-        $imageUrl = $data['image_url'];
+        $imageUrl = $data['imageUrl'];
         $image= new Image();
         $image->setUrl($imageUrl);
         $image->setUser($user);
 
-        $this->manager->persist($image);
-        $this->manager->flush();
+        $this->entityManager->persist($image);
+        $this->entityManager->flush();
 
         return new JsonResponse($this->serializeUser($user));
 
@@ -142,25 +150,94 @@ class ProfileServiceImpl
         return new JsonResponse(['images' => $imageData]);
     }
 
-    public function addBiographyProfile(array $data): JsonResponse
-    {
-        $token = $this->tokenStorageInterface->getToken();
-        $user = $token->getUser();
+    
+        public function updatePassword(array $data): JsonResponse
+        {
+            $user = $this->getUserFromToken();
 
-        if (!$user instanceof User) {
-            return new JsonResponse(['message' => 'User non authentifié.'], 401);
+            if (!$user instanceof User) {
+                return new JsonResponse(['message' => 'User non authentifié.'], 401);
+            }
+
+            if (!isset($data['old_password']) || !isset($data['new_password'])) {
+                return new JsonResponse(['message' => 'Les champs requis sont manquants.'], 400);
+            }
+
+            $oldPassword = $data['old_password'];
+
+            if (!$this->isOldPasswordValid($user, $oldPassword)) {
+                return new JsonResponse(['message' => 'Mot de passe actuel incorrect.'], 400);
+            }
+
+            $newPassword = $data['new_password'];
+
+            $this->updateUserPassword($user, $newPassword);
+
+            return new JsonResponse(['message' => 'Mot de passe modifié avec succès.'], 200);
         }
 
-        $user->setBiography($data['biography']);
+        public function disableAccount(): JsonResponse
+        {
+            $user = $this->getUserFromToken();
 
-        $this->manager->persist($user);
-        $this->manager->flush();
+            if (!$user instanceof User) {
+                return new JsonResponse(['message' => 'User non authentifié.'], 401);
+            }
 
-        return new JsonResponse($this->serializeUser($user));
-    }
+            $this->disableUserAccount($user);
 
+            return new JsonResponse(['message' => 'Compte désactivé avec succès.']);
+        }
+
+        private function getUserFromToken(): ?User
+        {
+            $token = $this->tokenStorageInterface->getToken();
+        
+            if (!$token) {
+                return null;
+            }
+        
+            try {
+                return $this->tokenStorageInterface->getToken()->getUser();
+            } catch (JWTDecodeFailureException $e) {
+                return null;
+            }
+        }
+        
+
+        private function isOldPasswordValid(User $user, string $oldPassword): bool
+        {
+            return $this->passwordHasher->isPasswordValid($user, $oldPassword);
+        }
+
+        private function updateUserPassword(User $user, string $newPassword): void
+        {
+            $hashedPassword = $this->passwordHasher->hashPassword($user, $newPassword);
+            $user->setPassword($hashedPassword);
+            $this->entityManager->flush();
+        }
+
+        private function disableUserAccount(User $user): void
+        {
+            $user->setEnabled(false);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        }
+
+        public function addBiographyProfile(array $data): JsonResponse
+        {
+            $token = $this->tokenStorageInterface->getToken();
+            $user = $token->getUser();
     
-
+            if (!$user instanceof User) {
+                return new JsonResponse(['message' => 'User non authentifié.'], 401);
+            }
     
-
+            $user->setBiography($data['biography']);
+    
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+    
+            return new JsonResponse($this->serializeUser($user));
+        }
 }

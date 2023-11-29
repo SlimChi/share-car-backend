@@ -1,15 +1,17 @@
 <?php
-
 namespace App\Services;
-
-
-use Symfony\Component\HttpFoundation\JsonResponse;
-
-
-
 
 interface ChatServiceInterface
 {
-    public function getAllUsersByUsername(): JsonResponse;
+    public function createChat(array $data, $senderId): array;
 
-}    
+    public function getSentChats($userId): array;
+
+    public function getReceivedChats($userId): array;
+
+    public function getChats($userId, $recipientId): array;
+
+    public function deleteAllChats($userId): array;
+
+    public function deleteChatById($userId, $chatId): array;
+}

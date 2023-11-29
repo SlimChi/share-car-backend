@@ -21,6 +21,30 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
+        /**
+     * Find all users except the specified user.
+     *
+     * @param int $userId The ID of the user to exclude.
+     * @return User[]
+     */
+    public function findAllExceptCurrentUser(int $userId): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.id != :userId')
+            ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getMessagesByUsers($recipientId, $otherUserId)
+{
+    return $this->createQueryBuilder('m')
+        ->andWhere('(m.sender = :recipientId AND m.recipient = :otherUserId) OR (m.sender = :otherUserId AND m.recipient = :recipientId)')
+        ->setParameter('recipientId', $recipientId)
+        ->setParameter('otherUserId', $otherUserId)
+        ->getQuery()
+        ->getResult();
+}
 //    /**
 //     * @return User[] Returns an array of User objects
 //     */
