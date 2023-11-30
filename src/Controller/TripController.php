@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Services\TripServiceInterface;
 use App\Dto\TripDto;
+use App\Repository\TripRepository;
 
 class TripController extends AbstractController
 {
@@ -35,4 +36,42 @@ class TripController extends AbstractController
     {
         return $this->tripService->deleteTrip($request);
     }
+
+    #[Route('/api/get_trip_details/{id}', name: 'app_get_trip_details', methods: ['GET'])]
+    public function getTripDetails(Request $request, TripRepository $tripRepository, $id): JsonResponse 
+    {       
+       
+
+        $trip = $tripRepository->find($id);
+
+        $formattedTrip = [
+            'id' => $trip->getId(),
+            'price' => $trip->getPrice(),
+            'departure_date' => $trip->getDepartureDate(),
+            'departure_time' => $trip->getDepartureTime(),
+           
+            'steps' => []
+        ];
+
+        $steps = $trip->getSteps();
+
+        foreach ($steps as $step) {
+            $formattedTrip['steps'][] = [
+                'id' => $step->getId(),
+                'departure_address' => $step->getDepartureAddress(),
+                'departure_zip_code' => $step->getDepartureZipCode(),
+                'departure_city' => $step->getDepartureCity(),
+                'arrival_address' => $step->getArrivalAddress(),
+                'arrival_zip_code' => $step->getArrivalZipCode(),
+                'arrival_city' => $step->getArrivalCity(),
+            ];
+        }
+
+        return new JsonResponse($formattedTrip);
+      
+    }
+
+ 
+
+   
 }

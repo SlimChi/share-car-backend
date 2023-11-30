@@ -12,4 +12,6 @@ interface TripServiceInterface
     public function getAllTrips(): JsonResponse;
 
     public function deleteTrip(Request $request): JsonResponse;
+
+    public function getTripDetails(Request $request): JsonResponse;
 }

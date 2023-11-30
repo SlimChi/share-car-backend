@@ -91,13 +91,9 @@ class TripServiceImpl implements TripServiceInterface
 
     public function getAllTrips(): JsonResponse
     {
-        $user = $this->getUser();
+        
 
-        if (!$user instanceof User) {
-            return new JsonResponse(['message' => 'Utilisateur non authentifié.'], 401);
-        }
-
-        $trips = $this->entityManager->getRepository(Trip::class)->findBy(['user' => $user]);
+        $trips = $this->entityManager->getRepository(Trip::class)->findAll();
 
         $formattedTrips = [];
 
@@ -130,6 +126,9 @@ class TripServiceImpl implements TripServiceInterface
             ],
             'user' => [
                 'id' => $trip->getUser()->getId(),
+                'username' => $trip->getUser()->getUsernameProfile(),
+                'image' => $this->getUserImage($trip->getUser()),
+                // 'images' => $trip->getUser()->$Images->getUrl(),
                 // Ajoutez d'autres propriétés de l'utilisateur si nécessaire
             ],
             'steps' => [],
@@ -193,5 +192,36 @@ class TripServiceImpl implements TripServiceInterface
 
         return new JsonResponse(['message' => 'Trajet supprimé avec succès.']);
     }
+
+    private function getUserImage(User $user): ?string
+{
+    $images = $user->getImages();
+
+    // Vérifiez si l'utilisateur a des images
+   return $images->count() > 0 ? $images->first()->getUrl() : null;
+
+ 
+} 
   
+public function getTripDetails(Request $request): JsonResponse
+{
+
+    $data = json_decode($request->getContent(), true);
+    
+ return new JsonResponse($data['id']);
+
+    if (!$tripId) {
+        return new JsonResponse(['message' => 'Veuillez fournir un identifiant.'], 400);
+    }
+
+    $trip = $this->entityManager->getRepository(Trip::class)->find($tripId);
+
+    if (!$trip) {
+        return new JsonResponse(['message' => 'Trajet non trouvé.'], 404);
+    }
+
+    $formattedTrip = $this->formatTrip($trip);
+
+    return new JsonResponse($formattedTrip);
+}
 }
