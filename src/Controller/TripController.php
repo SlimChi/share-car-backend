@@ -9,6 +9,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Services\TripServiceInterface;
 use App\Dto\TripDto;
 use App\Repository\TripRepository;
+use App\Repository\ImageCarsRepository;
+use App\Entity\ImageCars;
 
 class TripController extends AbstractController
 {
@@ -38,7 +40,7 @@ class TripController extends AbstractController
     }
 
     #[Route('/api/get_trip_details/{id}', name: 'app_get_trip_details', methods: ['GET'])]
-    public function getTripDetails(Request $request, TripRepository $tripRepository, $id): JsonResponse 
+    public function getTripDetails(Request $request, TripRepository $tripRepository, $id, ImageCarsRepository $imageCarsRepository): JsonResponse 
     {       
        
 
@@ -49,8 +51,14 @@ class TripController extends AbstractController
             'price' => $trip->getPrice(),
             'departure_date' => $trip->getDepartureDate(),
             'departure_time' => $trip->getDepartureTime(),
+            'car' => [],
            
-            'steps' => []
+            'user' => [], 
+        
+          
+            'steps' => [],
+
+            'image_car' => [],
         ];
 
         $steps = $trip->getSteps();
@@ -67,11 +75,43 @@ class TripController extends AbstractController
             ];
         }
 
+        $car = $trip->getCar();
+
+     
+        $formattedTrip['car'] = [
+            'id' => $car->getId(),
+            "model" => $car->getModels()->getBrand(),
+            "brand" => $car->getModels()->getModel(),
+            
+        ];
+
+        $tripUser = $trip->getUser();
+
+        $formattedTrip['user'] = [
+            
+            'username' => $tripUser->getUsernameProfile(),
+          
+
+        ];
+
+        $imageCarByTripUser = $imageCarsRepository->findByUser($tripUser);
+
+        foreach ($imageCarByTripUser as $imageCar) {
+            $formattedTrip['image_car'][] = [
+                'id' => $imageCar->getId(),
+                'url' => $imageCar->getImageUrl(),
+            ];
+        }
+
+
+
+
+ 
+
         return new JsonResponse($formattedTrip);
       
     }
 
- 
 
    
 }

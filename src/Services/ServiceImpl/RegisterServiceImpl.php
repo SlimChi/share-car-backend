@@ -116,7 +116,7 @@ class RegisterServiceImpl implements RegisterServiceInterface
         $this->manager->persist($user);
         $this->manager->flush();
 
-        return ['status' => true, 'message' => 'Email confirmé. Vous pouvez maintenant vous connecter.'];
+        return ['status' => true, 'message' => 'Compte active avec succès.'];
     }
 
     public function forgotPassword(string $email): array
@@ -163,9 +163,10 @@ class RegisterServiceImpl implements RegisterServiceInterface
 }
 
 
-    private function sendEmailConfirmationRegister(string $email, string $token): void
+    private function sendEmailConfirmationRegister(string $email,  string $token): void
 {
     $confirmationUrl = $this->urlGenerator->generate('app_confirm_register', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
+
 
     $email = (new Email())
         ->from(new Address('noreply@example.com', 'Mon application'))

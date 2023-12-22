@@ -85,6 +85,18 @@ class ProfileServiceImpl
         return new JsonResponse(['message' => 'User non authentifié.'], 401);
     }
 
+    $usernameExist = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $data['username']]);
+
+    if ($usernameExist && $user->getUsernameProfile() !== $data['username']) {
+        return new JsonResponse(['message' => 'Ce pseudo est déjà utilisé.'], 400);
+    }
+
+    $emailExist = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+
+    if ($emailExist && $user->getEmail() !== $data['email']) {
+        return new JsonResponse(['message' => 'Cet email est déjà utilisé.'], 400);
+    }
+
     $validationResult = $this->validationService->validateDataProfile($data);
 
     if (!$validationResult['status']) {

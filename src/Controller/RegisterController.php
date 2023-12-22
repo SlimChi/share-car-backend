@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use App\Services\RegisterServiceInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class RegisterController extends AbstractController
 {
@@ -30,12 +31,19 @@ class RegisterController extends AbstractController
     }
 
     #[Route('/confirm-register/{token}', name: 'app_confirm_register', methods: ['GET'])]
-    public function confirmRegister(string $token): JsonResponse
+    public function confirmRegister(string $token): Response
     {
-        // Appelez la fonction du service pour confirmer l'inscription
         $response = $this->registerService->confirmRegister($token);
 
-        return new JsonResponse($response, $response['status'] ? JsonResponse::HTTP_OK : JsonResponse::HTTP_BAD_REQUEST);
+        if ($response['status']) {
+            $message = 'Email confirmé. Vous pouvez maintenant vous connecter.';
+        } else {
+            $message = 'Lien de confirmation non valide.';
+        }
+
+        return $this->render('registration/confirmation.html.twig', [
+            'message' => $message,
+        ]);
     }
 
     #[Route('/forgotPassword', name: 'forgot-password', methods: ['POST'])]

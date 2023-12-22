@@ -58,6 +58,7 @@ class LoginServiceImpl implements LoginServiceInterface
         
         $payload = [
             'email' => $user->getEmail(),
+            
         ];
 
         $token = $this->jwtManager->create($user, $payload);

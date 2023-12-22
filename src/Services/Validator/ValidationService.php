@@ -43,7 +43,21 @@ class ValidationService
                 'message' => 'La date de naissance doit être une date valide.',
                 'format' => 'Y-m-d',
             ]),
+
+            new Assert\LessThanOrEqual([
+                'value' => date('Y-m-d', strtotime('-18 years')),
+                'message' => 'La date de naissance doit être superieur à 18 ans.',
+            ]),
+        
+         
+
+            new Assert\LessThanOrEqual([
+                'value' => date('Y-m-d'),
+                'message' => 'La date de naissance doit être inferieur à la date actuelle.',
+            ])
         ]);
+
+ 
         
         if (count($dateOfBirthErrors) > 0) {
             return ['status' => false, 'message' => $this->formatValidationErrors($dateOfBirthErrors)];

@@ -134,18 +134,11 @@ class TripServiceImpl implements TripServiceInterface
             'steps' => [],
         ];
     
-        // Vérifiez si la méthode getSteps() existe et utilisez-la pour récupérer les étapes
-        if (method_exists($trip, 'getSteps')) {
+     
             $steps = $trip->getSteps();
-        } elseif (method_exists($trip, 'getEtapes')) {
-            // Si getSteps() n'existe pas, essayez avec getEtapes() (en supposant que c'est le nom correct)
-            $steps = $trip->getEtapes();
-        } else {
-            // Si aucune méthode correspondante n'est trouvée, ajustez ce qui est nécessaire
-            $steps = [];
-        }
+ 
     
-        foreach ($steps as $step) {
+        foreach ($steps as $step ) {
             $formattedTrip['steps'][] = [
                 'id' => $step->getId(),
                 'departure_address' => $step->getDepartureAddress(),
@@ -153,9 +146,13 @@ class TripServiceImpl implements TripServiceInterface
                 'departure_city' => $step->getDepartureCity(),
                 'arrival_address' => $step->getArrivalAddress(),
                 'arrival_zip_code' => $step->getArrivalZipCode(),
-                'arrival_city' => $step->getArrivalCity(),
+                'arrival_city' => $step->getArrivalCity(), 
+                
             ];
         }
+
+
+        
     
         return $formattedTrip;
     }
@@ -203,25 +200,29 @@ class TripServiceImpl implements TripServiceInterface
  
 } 
   
-public function getTripDetails(Request $request): JsonResponse
-{
+// public function getTripDetails(Request $request): JsonResponse
+// {
 
-    $data = json_decode($request->getContent(), true);
+//     $data = json_decode($request->getContent(), true);
     
- return new JsonResponse($data['id']);
+//  return new JsonResponse($data['id']);
 
-    if (!$tripId) {
-        return new JsonResponse(['message' => 'Veuillez fournir un identifiant.'], 400);
-    }
+//     if (!$tripId) {
+//         return new JsonResponse(['message' => 'Veuillez fournir un identifiant.'], 400);
+//     }
 
-    $trip = $this->entityManager->getRepository(Trip::class)->find($tripId);
+//     $trip = $this->entityManager->getRepository(Trip::class)->find($tripId);
 
-    if (!$trip) {
-        return new JsonResponse(['message' => 'Trajet non trouvé.'], 404);
-    }
+//     if (!$trip) {
+//         return new JsonResponse(['message' => 'Trajet non trouvé.'], 404);
+//     }
 
-    $formattedTrip = $this->formatTrip($trip);
+//     $formattedTrips = [];
 
-    return new JsonResponse($formattedTrip);
-}
+//         foreach ($trips as $trip) {
+//             $formattedTrips[] = $this->formatTrip($trip);
+//         }
+
+//         return new JsonResponse($formattedTrips);
+// }
 }
